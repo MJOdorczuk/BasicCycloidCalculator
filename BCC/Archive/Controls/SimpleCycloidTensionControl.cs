@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BCC.Controls
+namespace BCC.Archivised.Controls
 {
     class SimpleCycloidTensionControl : CycloidTensionControl
     {

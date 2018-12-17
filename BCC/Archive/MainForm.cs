@@ -1,4 +1,5 @@
-﻿using BCC.Menus.Main;
+﻿using BCC.Archivised;
+using BCC.Menus.Main;
 using BCC.Menus.Tension;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace BCC
     public partial class MainForm : Form
     {
         private List<Button> menuButtons;
-        private Model model;
+        private ArchivisedModel model;
         public MainForm()
         {
 
@@ -29,7 +30,7 @@ namespace BCC
                 Enabled = true
             };
             Controls.Add(mainMenu);
-            model = new Model();
+            model = new ArchivisedModel();
             mainMenu.SetModel(model);
             InitializeComponent();
             GeometryMenu geometryMenu = new GeometryMenu(model)
@@ -74,7 +75,7 @@ namespace BCC
             foreach(Control control in GICPanel)
         }*/
 
-        public Model GetModel => model;
+        public ArchivisedModel GetModel => model;
 
         private void MainForm_Load(object sender, EventArgs e)
         {

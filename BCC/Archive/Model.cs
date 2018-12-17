@@ -1,16 +1,12 @@
-﻿using BCC.Controls;
+﻿using BCC.Archivised.Controls;
 using BCC.Menus.Main;
 using BCC.Menus.Tension;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace BCC
+namespace BCC.Archivised
 {
-    public class Model
+    public class ArchivisedModel
     {
         private GeometryMenu geometryMenu;
         private TensionMenu tensionMenu;
@@ -18,7 +14,7 @@ namespace BCC
         private readonly CycloidControl tensionControl;
         
 
-        public Model()
+        public ArchivisedModel()
         {
         }
 

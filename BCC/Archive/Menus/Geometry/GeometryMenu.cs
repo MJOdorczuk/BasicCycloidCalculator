@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using BCC.Menus.Geometry;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using BCC.Archivised;
 
 namespace BCC.Menus.Main
 {
@@ -13,7 +14,7 @@ namespace BCC.Menus.Main
 
         private const int GIC_VOFFSET = 60;
         private const int GIC_HOFFSET = 310;
-        Model model;
+        ArchivisedModel model;
         private List<string> intParameters = new List<string>();
         private List<string> floatParameters = new List<string>();
         private List<string> resultParameters = new List<string>();
@@ -33,7 +34,7 @@ namespace BCC.Menus.Main
         public List<string> FloatParameters { get => floatParameters; set => floatParameters = value; }
         public List<string> ResultParameters { get => resultParameters; set => resultParameters = value; }
 
-        public GeometryMenu(Model model)
+        public GeometryMenu(ArchivisedModel model)
         {
             
             this.model = model;
@@ -186,7 +187,7 @@ namespace BCC.Menus.Main
             model.ComputeGeometry(parameters, isEpicycloid);
         }
 
-        public void SetModel(Model model) => this.model = model;
+        public void SetModel(ArchivisedModel model) => this.model = model;
 
         private void GeometryMenu_Load(object sender, EventArgs e)
         {
