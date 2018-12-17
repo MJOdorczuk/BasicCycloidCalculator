@@ -1,6 +1,6 @@
 ﻿namespace BCC
 {
-    partial class GeometryInputControl
+    partial class FloatGeometryInputControl
     {
         /// <summary> 
         /// Required designer variable.
@@ -59,7 +59,7 @@
             this.ParameterValueTextBox.Enabled = false;
             this.ParameterValueTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.ParameterValueTextBox.ForeColor = System.Drawing.SystemColors.MenuText;
-            this.ParameterValueTextBox.Location = new System.Drawing.Point(126, 3);
+            this.ParameterValueTextBox.Location = new System.Drawing.Point(147, 18);
             this.ParameterValueTextBox.Name = "ParameterValueTextBox";
             this.ParameterValueTextBox.Size = new System.Drawing.Size(150, 29);
             this.ParameterValueTextBox.TabIndex = 2;
@@ -74,6 +74,7 @@
             this.Controls.Add(this.ParameterNameLabel);
             this.Name = "GeometryInputControl";
             this.Size = new System.Drawing.Size(300, 50);
+            this.Load += new System.EventHandler(this.GeometryInputControl_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
