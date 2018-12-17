@@ -15,14 +15,9 @@ namespace BCC.Interface
         private ToolStripMenuItem editToolStripMenuItem;
         private ToolStripMenuItem viewToolStripMenuItem;
         private ToolStripMenuItem helpToolStripMenuItem;
-        public readonly UserControl WorkSpace = new UserControl()
-        {
-            Dock = DockStyle.Fill,
-            Visible = true,
-            Enabled = true,
-            AutoSize = true,
+        private Panel workSpace;
 
-        };
+        public Panel WorkSpace => workSpace;
 
         public StandardForm()
         {
@@ -41,6 +36,7 @@ namespace BCC.Interface
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.workSpace = new System.Windows.Forms.Panel();
             this.ISOMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -117,11 +113,19 @@ namespace BCC.Interface
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(54, 25);
             this.helpToolStripMenuItem.Text = "Help";
             // 
+            // workSpace
+            // 
+            this.workSpace.Location = new System.Drawing.Point(0, 29);
+            this.workSpace.Name = "workSpace";
+            this.workSpace.Size = new System.Drawing.Size(1264, 652);
+            this.workSpace.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.workSpace.TabIndex = 2;
+            // 
             // StandardForm
             // 
             this.ClientSize = new System.Drawing.Size(1264, 681);
+            this.Controls.Add(this.workSpace);
             this.Controls.Add(this.ISOMenuStrip);
-            this.Controls.Add(this.WorkSpace);
             this.Name = "StandardForm";
             this.ISOMenuStrip.ResumeLayout(false);
             this.ISOMenuStrip.PerformLayout();

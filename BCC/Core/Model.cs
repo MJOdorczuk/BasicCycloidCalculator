@@ -8,7 +8,7 @@ namespace BCC.Core
     {
 
         private static StandardForm main;
-        private static UserControl workSpace;
+        private static Panel workSpace;
         private static MenuBar bar;
 
         public static Form Initialize()
