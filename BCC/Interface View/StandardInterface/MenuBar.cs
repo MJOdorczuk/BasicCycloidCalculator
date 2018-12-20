@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace BCC.Interface
+namespace BCC.Interface_View.StandardInterface
 {
     class MenuBar : MenuStrip
     {
@@ -14,15 +14,15 @@ namespace BCC.Interface
 
         public void PushMenu(UserControl control, string label)
         {
-            var first = calls.Count == 0;
             ToolStripMenuItem item = new ToolStripMenuItem()
             {
                 Font = new Font(FontFamily.GenericMonospace, 14),
                 AutoSize = true,
-                Visible = first,
-                Enabled = first,
+                Visible = control.Enabled,
+                Enabled = control.Enabled,
                 Text = label
             };
+            control.Visible = control.Enabled;
             item.Click += new EventHandler((sender, e) =>
             {
                 Model.Call(control);

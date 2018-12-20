@@ -1,8 +1,5 @@
 ﻿using BCC.Core;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace BCC
@@ -15,6 +12,7 @@ namespace BCC
         [STAThread]
         static void Main()
         {
+            //var form = new MyMetroForm();
             var form = Model.Initialize();
             Application.Run(form);
         }

@@ -1,10 +1,12 @@
-﻿using System.Drawing;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 
-namespace BCC.Interface
+namespace BCC.Interface_View.StandardInterface
 {
     class StandardForm : Form
     {
+        //private static readonly Color FONT_COLOR = Color.FromArgb(200, 220, 230);
+        //private static readonly Color BACK_COLOR = Color.FromArgb(20, 30, 50);
+
         private MenuStrip ISOMenuStrip;
         private ToolStripMenuItem fileToolStripMenuItem;
         private ToolStripMenuItem newToolStripMenuItem;
@@ -14,10 +16,12 @@ namespace BCC.Interface
         private ToolStripMenuItem exitToolStripMenuItem;
         private ToolStripMenuItem editToolStripMenuItem;
         private ToolStripMenuItem viewToolStripMenuItem;
+        private TabControl WorkTabsControl;
+        private TabPage tabPage1;
+        private TabPage tabPage2;
         private ToolStripMenuItem helpToolStripMenuItem;
-        private Panel workSpace;
 
-        public Panel WorkSpace => workSpace;
+        public TabControl WorkSpace => WorkTabsControl;
 
         public StandardForm()
         {
@@ -36,8 +40,11 @@ namespace BCC.Interface
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.workSpace = new System.Windows.Forms.Panel();
+            this.WorkTabsControl = new System.Windows.Forms.TabControl();
+            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
             this.ISOMenuStrip.SuspendLayout();
+            this.WorkTabsControl.SuspendLayout();
             this.SuspendLayout();
             // 
             // ISOMenuStrip
@@ -113,22 +120,46 @@ namespace BCC.Interface
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(54, 25);
             this.helpToolStripMenuItem.Text = "Help";
             // 
-            // workSpace
+            // WorkTabsControl
             // 
-            this.workSpace.Location = new System.Drawing.Point(0, 29);
-            this.workSpace.Name = "workSpace";
-            this.workSpace.Size = new System.Drawing.Size(1264, 652);
-            this.workSpace.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.workSpace.TabIndex = 2;
+            this.WorkTabsControl.Controls.Add(this.tabPage1);
+            this.WorkTabsControl.Controls.Add(this.tabPage2);
+            this.WorkTabsControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.WorkTabsControl.Location = new System.Drawing.Point(0, 29);
+            this.WorkTabsControl.Name = "WorkTabsControl";
+            this.WorkTabsControl.SelectedIndex = 0;
+            this.WorkTabsControl.Size = new System.Drawing.Size(1264, 652);
+            this.WorkTabsControl.TabIndex = 2;
+            // 
+            // tabPage1
+            // 
+            this.tabPage1.Location = new System.Drawing.Point(4, 22);
+            this.tabPage1.Name = "tabPage1";
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage1.Size = new System.Drawing.Size(1256, 626);
+            this.tabPage1.TabIndex = 0;
+            this.tabPage1.Text = "tabPage1";
+            this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // tabPage2
+            // 
+            this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(192, 74);
+            this.tabPage2.TabIndex = 1;
+            this.tabPage2.Text = "tabPage2";
+            this.tabPage2.UseVisualStyleBackColor = true;
             // 
             // StandardForm
             // 
             this.ClientSize = new System.Drawing.Size(1264, 681);
-            this.Controls.Add(this.workSpace);
+            this.Controls.Add(this.WorkTabsControl);
             this.Controls.Add(this.ISOMenuStrip);
             this.Name = "StandardForm";
             this.ISOMenuStrip.ResumeLayout(false);
             this.ISOMenuStrip.PerformLayout();
+            this.WorkTabsControl.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 

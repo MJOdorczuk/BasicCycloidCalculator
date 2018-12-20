@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace BCC.Interface
+namespace BCC.InterfaceFactory
 {
     public static class Generator
     {
@@ -17,15 +17,20 @@ namespace BCC.Interface
 
             static MenuGenerator()
             {
+                // Dummy custom menus
                 var menuA = new UserControl();
                 var menuB = new UserControl();
                 var menuC = new UserControl();
                 var menuD = new UserControl();
 
-                var geometryMenu = new UserControl()
+                UserControl GeometryMenu()
                 {
+                    var geometryMenu = new UserControl();
+                    
 
-                };
+                    return geometryMenu;
+                }
+                
 
 
                 var enableBButton = new Button()
@@ -121,21 +126,19 @@ namespace BCC.Interface
                 menus.Add("menuB", menuB);
                 menus.Add("menuC", menuC);
                 menus.Add("menuD", menuD);
+                menus.Add("Cycloid Geometry", GeometryMenu());
 
                 foreach (var menu in menus.Values)
                 {
                     menu.Visible = menu.Enabled = false;
                     menu.Dock = DockStyle.Fill;
                 }
+                menuA.Enabled = true;
+                menus["Cycloid Geometry"].Enabled = true;
 
             }
 
             internal static Dictionary<string, UserControl> Menus => new Dictionary<string, UserControl>(menus);
-        }
-
-        private static class ISOBarGenerator
-        {
-            //private class ISOBarItem : ToolStripItem
         }
 
         public static Dictionary<string, UserControl> GetGenerateMenus()

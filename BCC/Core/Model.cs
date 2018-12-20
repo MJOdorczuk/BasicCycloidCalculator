@@ -1,4 +1,5 @@
-﻿using BCC.Interface;
+﻿using BCC.Interface_View.StandardInterface;
+using BCC.InterfaceFactory;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -8,7 +9,7 @@ namespace BCC.Core
     {
 
         private static StandardForm main;
-        private static Panel workSpace;
+        private static TabControl workSpace;
         private static MenuBar bar;
 
         public static Form Initialize()

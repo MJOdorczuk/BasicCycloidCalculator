@@ -45,6 +45,7 @@
             // 
             // ComputionButton
             // 
+            this.ComputionButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.ComputionButton.Location = new System.Drawing.Point(1122, 474);
             this.ComputionButton.Name = "ComputionButton";
             this.ComputionButton.Size = new System.Drawing.Size(75, 23);
@@ -55,6 +56,7 @@
             // 
             // DebugTextBox
             // 
+            this.DebugTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.DebugTextBox.Location = new System.Drawing.Point(1023, 4);
             this.DebugTextBox.Name = "DebugTextBox";
             this.DebugTextBox.Size = new System.Drawing.Size(174, 187);
