@@ -1,5 +1,6 @@
 ﻿using BCC.Interface_View.StandardInterface;
-using BCC.InterfaceFactory;
+using BCC.Interface_View.StandardInterface.Geometry;
+using BCC.Miscs;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -10,7 +11,14 @@ namespace BCC.Core
 
         private static StandardForm main;
         private static TabControl workSpace;
-        private static MenuBar bar;
+        private static GeometryMenu geometryMenu;
+        private static TabPage geometryPage = new TabPage() {
+            Text = Vocabulary.Geometry()
+        };
+        private static TabPage forcesPage = new TabPage()
+        {
+            Text = Vocabulary.Tension()
+        };
 
         public static Form Initialize()
         {
@@ -28,20 +36,16 @@ namespace BCC.Core
                 ShowIcon = false
             };
             Model.workSpace = Model.main.WorkSpace;
-            Model.bar = new MenuBar()
+            Model.geometryMenu = new GeometryMenu()
             {
-                Font = new Font(FontFamily.GenericMonospace, 18),
-                Dock = DockStyle.Top,
+                Visible = true,
+                Enabled = true,
                 AutoSize = true,
-                Visible = true
+                Dock = DockStyle.Fill
             };
-            workSpace.Controls.Add(bar);
-            bar.Show();
-            foreach (var m in Generator.GetGenerateMenus())
-            {
-                workSpace.Controls.Add(m.Value);
-                bar.PushMenu(m.Value, m.Key);
-            }
+            workSpace.TabPages.Add(geometryPage);
+            workSpace.TabPages.Add(forcesPage);
+            geometryPage.Controls.Add(geometryMenu);
             return main;
         }
 
@@ -62,12 +66,12 @@ namespace BCC.Core
 
         internal static void Enable(UserControl menu)
         {
-            bar.Show(menu);
+            //bar.Show(menu);
         }
 
         internal static void Disable(UserControl menu)
         {
-            bar.Show(menu, false);
+            //bar.Show(menu, false);
         }
     }
 }
