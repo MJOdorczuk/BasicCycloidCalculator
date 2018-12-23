@@ -156,6 +156,7 @@
     <Compile Include="Interface View\StandardInterface\StandardForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Interface View\StandardInterface\Tension\LoadMenu.cs" />
     <Compile Include="Miscs\Vocabulary.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

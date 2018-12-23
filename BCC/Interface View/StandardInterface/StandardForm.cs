@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿using BCC.Miscs;
+using System.Windows.Forms;
 
 namespace BCC.Interface_View.StandardInterface
 {

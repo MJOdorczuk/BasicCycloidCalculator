@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace BCC.Miscs
 {
-    static class Vocabulary
+    public static class Vocabulary
     {
-        enum Language { POLISH, ENGLISH}
-        private static Language language = Language.ENGLISH;
-        private static readonly string NOT_IMPLEMENTED_MESSAGE = "not implemented yet";
+        public enum Language { POLISH, ENGLISH}
+        private static Language language = Language.POLISH;
+        private static readonly string NOT_IMPLEMENTED_MESSAGE = "Translation not implemented yet";
 
-        public static string Geometry()
+        internal static string Geometry()
         {
             switch (language)
             {
@@ -23,7 +23,7 @@ namespace BCC.Miscs
             }
             return NOT_IMPLEMENTED_MESSAGE;
         }
-        public static string Tension()
+        internal static string Tension()
         {
             switch (language)
             {
@@ -34,7 +34,7 @@ namespace BCC.Miscs
             }
             return NOT_IMPLEMENTED_MESSAGE;
         }
-        public static string ProfileType()
+        internal static string ProfileType()
         {
             switch (language)
             {
@@ -45,7 +45,7 @@ namespace BCC.Miscs
             }
             return NOT_IMPLEMENTED_MESSAGE;
         }
-        public static string Epicycloid()
+        internal static string Epicycloid()
         {
             switch (language)
             {
@@ -56,7 +56,7 @@ namespace BCC.Miscs
             }
             return NOT_IMPLEMENTED_MESSAGE;
         }
-        public static string Hipocycloid()
+        internal static string Hipocycloid()
         {
             switch (language)
             {
@@ -64,6 +64,127 @@ namespace BCC.Miscs
                     return "Hipocykloidalny";
                 case Language.ENGLISH:
                     return "Hipocycloid";
+            }
+            return NOT_IMPLEMENTED_MESSAGE;
+        }
+        internal static string TeethQuantity()
+        {
+            switch (language)
+            {
+                case Language.POLISH:
+                    return "Liczba zębów";
+                case Language.ENGLISH:
+                    return "Teeth quantity";
+            }
+            return NOT_IMPLEMENTED_MESSAGE;
+        }
+        internal static string RollDiameter()
+        {
+            switch (language)
+            {
+                case Language.POLISH:
+                    return "Średnica rolki";
+                case Language.ENGLISH:
+                    return "Roll diameter";
+            }
+            return NOT_IMPLEMENTED_MESSAGE;
+        }
+        internal static string MajorDiameter()
+        {
+            switch (language)
+            {
+                case Language.POLISH:
+                    return "Średnica wierzchołkowa";
+                case Language.ENGLISH:
+                    return "Majord diameter";
+            }
+            return NOT_IMPLEMENTED_MESSAGE;
+        }
+        internal static string RootDiameter()
+        {
+            switch (language)
+            {
+                case Language.POLISH:
+                    return "Średnica koła stóp";
+                case Language.ENGLISH:
+                    return "Root diameter";
+            }
+            return NOT_IMPLEMENTED_MESSAGE;
+        }
+        internal static string RollSpacingDiameter()
+        {
+            switch (language)
+            {
+                case Language.POLISH:
+                    return "Średnica rozmieszczenia rolek";
+                case Language.ENGLISH:
+                    return "Roll spacing diameter";
+            }
+            return NOT_IMPLEMENTED_MESSAGE;
+        }
+        internal static string Eccentricity()
+        {
+            switch (language)
+            {
+                case Language.POLISH:
+                    return "Mimośród";
+                case Language.ENGLISH:
+                    return "Eccentricity";
+            }
+            return NOT_IMPLEMENTED_MESSAGE;
+        }
+        internal static string ToothHeight()
+        {
+            switch (language)
+            {
+                case Language.POLISH:
+                    return "Wysokość zęba";
+                case Language.ENGLISH:
+                    return "Tooth height";
+            }
+            return NOT_IMPLEMENTED_MESSAGE;
+        }
+        internal static string ToothHeightFactor()
+        {
+            switch (language)
+            {
+                case Language.POLISH:
+                    return "Współczynnik wysokości zęba";
+                case Language.ENGLISH:
+                    return "Tooth height factor";
+            }
+            return NOT_IMPLEMENTED_MESSAGE;
+        }
+        internal static string PinSpacingDiameter()
+        {
+            switch (language)
+            {
+                case Language.POLISH:
+                    return "Średnica rozmieszczenia sworzni";
+                case Language.ENGLISH:
+                    return "Pin spacing diameter";
+            }
+            return NOT_IMPLEMENTED_MESSAGE;
+        }
+        internal static string RollingCircleDiameter()
+        {
+            switch (language)
+            {
+                case Language.POLISH:
+                    return "Średnica okręgu toczącego";
+                case Language.ENGLISH:
+                    return "Rolling circle diameter";
+            }
+            return NOT_IMPLEMENTED_MESSAGE;
+        }
+        internal static string BaseDiameter()
+        {
+            switch (language)
+            {
+                case Language.POLISH:
+                    return "Średnica koła zasadniczego";
+                case Language.ENGLISH:
+                    return "Base diameter";
             }
             return NOT_IMPLEMENTED_MESSAGE;
         }

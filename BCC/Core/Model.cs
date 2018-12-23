@@ -33,7 +33,7 @@ namespace BCC.Core
                 MinimumSize = new Size(1280, 720),
                 Text = "CycloCalc",
                 IsMdiContainer = true,
-                ShowIcon = false
+                ShowIcon = false,
             };
             Model.workSpace = Model.main.WorkSpace;
             Model.geometryMenu = new GeometryMenu()
