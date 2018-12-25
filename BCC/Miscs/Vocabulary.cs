@@ -17,20 +17,20 @@ namespace BCC.Miscs
             switch (language)
             {
                 case Language.POLISH:
-                    return "geometria";
+                    return "Geometria";
                 case Language.ENGLISH:
-                    return "geometry";
+                    return "Geometry";
             }
             return NOT_IMPLEMENTED_MESSAGE;
         }
-        internal static string Tension()
+        internal static string Load()
         {
             switch (language)
             {
                 case Language.POLISH:
-                    return "naprężenia";
+                    return "Obciążenie";
                 case Language.ENGLISH:
-                    return "tension";
+                    return "Load";
             }
             return NOT_IMPLEMENTED_MESSAGE;
         }

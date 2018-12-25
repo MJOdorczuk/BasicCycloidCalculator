@@ -1,4 +1,5 @@
-﻿using BCC.Miscs;
+﻿using BCC.Core.Geometry;
+using BCC.Miscs;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
@@ -8,10 +9,12 @@ namespace BCC.Interface_View.StandardInterface.Geometry
     class GeometryMenu : UserControl
     {
         private GroupBox ParamsGroupBox;
-        private static readonly int PARAMBOX_SPACING = 50;
         private FlowLayoutPanel ParameterFlowLayoutPanel;
         private static readonly int PARAMBOX_WIDTH = 360;
         private readonly List<Action> nameCalls = new List<Action>();
+        private readonly Dictionary<CycloParams, Func<object>> getterCalls = new Dictionary<CycloParams, Func<object>>();
+        private readonly Dictionary<CycloParams, Action<object>> setterCalls = new Dictionary<CycloParams, Action<object>>();
+        private readonly Dictionary<CycloParams, Func<bool>> availabilityCalls = new Dictionary<CycloParams, Func<bool>>();
         private Panel DisplayPanel;
         private Func<int> ParamBoxWidth;
 
@@ -28,14 +31,14 @@ namespace BCC.Interface_View.StandardInterface.Geometry
 
             // Initialization of groupBoxes
             new Action(() => {
-                List<Control> parameterControls = new List<Control>();
+                var parameterControls = new List<Control>();
 
                 // Profile type group
                 new Action(() => {
                     // 
                     // ProfileTypeGroupBox
                     // 
-                    GroupBox ProfileTypeGroupBox = new GroupBox
+                    var ProfileTypeGroupBox = new GroupBox
                     {
                         Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold),
                         Location = new System.Drawing.Point(6, 19),
@@ -51,8 +54,9 @@ namespace BCC.Interface_View.StandardInterface.Geometry
                     }));
                     // 
                     // ProfileTypeComboBox
+                    // Profile type set only by user
                     // 
-                    ComboBox ProfileTypeComboBox = new ComboBox
+                    var ProfileTypeComboBox = new ComboBox
                     {
                         Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238))),
                         FormattingEnabled = true,
@@ -73,6 +77,7 @@ namespace BCC.Interface_View.StandardInterface.Geometry
                         Vocabulary.Epicycloid(),
                         Vocabulary.Hipocycloid()});
                     }));
+                    getterCalls.Add(CycloParams.EPI, () => ProfileTypeComboBox.SelectedIndex == 0);
                 })();
 
                 // Teeth quantity group
@@ -80,7 +85,7 @@ namespace BCC.Interface_View.StandardInterface.Geometry
                     // 
                     // TeethQuantityGroupBox
                     // 
-                    GroupBox TeethQuantityGroupBox = new GroupBox
+                    var TeethQuantityGroupBox = new GroupBox
                     {
                         Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238))),
                         Location = new System.Drawing.Point(6, 86),
@@ -96,8 +101,9 @@ namespace BCC.Interface_View.StandardInterface.Geometry
                     }));
                     // 
                     // TeethQuantityUpDown
+                    // Teeth quantity set only by user
                     // 
-                    NumericUpDown TeethQuantityUpDown = new NumericUpDown
+                    var TeethQuantityUpDown = new NumericUpDown
                     {
                         Location = new System.Drawing.Point(7, 22),
                         Name = "TeethQuantityUpDown",
@@ -106,6 +112,7 @@ namespace BCC.Interface_View.StandardInterface.Geometry
                     };
                     TeethQuantityGroupBox.Controls.Add(TeethQuantityUpDown);
                     parameterControls.Add(TeethQuantityGroupBox);
+                    getterCalls.Add(CycloParams.Z, () => TeethQuantityUpDown.Value);
                 })();
 
                 // Roll diameter group
@@ -113,7 +120,7 @@ namespace BCC.Interface_View.StandardInterface.Geometry
                     // 
                     // RollDiameterGroupBox
                     // 
-                    GroupBox RollDiameterGroupBox = new GroupBox
+                    var RollDiameterGroupBox = new GroupBox
                     {
                         Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238))),
                         Location = new System.Drawing.Point(6, 140),
@@ -129,8 +136,9 @@ namespace BCC.Interface_View.StandardInterface.Geometry
                     }));
                     // 
                     // RollDiameterValueBox
+                    // Roll diameter set only by user
                     // 
-                    TextBox RollDiameterValueBox = new TextBox
+                    var RollDiameterValueBox = new TextBox
                     {
                         Location = new System.Drawing.Point(7, 22),
                         Name = "RollDiameterValueBox",
@@ -152,26 +160,26 @@ namespace BCC.Interface_View.StandardInterface.Geometry
                         }
                     });
                     parameterControls.Add(RollDiameterGroupBox);
+                    getterCalls.Add(CycloParams.G, () => double.Parse(RollDiameterValueBox.Text));
                 })();
 
                 // Optional input parameters groups loop
                 new Action(() => {
-                    int i = 0;
-                    foreach (var param in new Dictionary<string, Func<string>>() {
-                        {"MajorDiameter", () => Vocabulary.MajorDiameter() + "(Dₐ)" },
-                        {"RootDiameter", () => Vocabulary.RootDiameter() + "(Df)"},
-                        {"RollSpacingDiameter", () => Vocabulary.RollSpacingDiameter() + "(Dg)" },
-                        {"Eccentricity", () => Vocabulary.Eccentricity() + "(e)"},
-                        {"ToothHeight", () => Vocabulary.ToothHeight() + "(h)"}
+                    foreach(var param in new Dictionary<CycloParams, Func<string>>()
+                    {
+                        {CycloParams.DA, () => Vocabulary.MajorDiameter() + "(Dₐ)" },
+                        {CycloParams.DF, () => Vocabulary.RootDiameter() + "(Df)"},
+                        {CycloParams.DG, () => Vocabulary.RollSpacingDiameter() + "(Dg)" },
+                        {CycloParams.E, () => Vocabulary.Eccentricity() + "(e)"},
+                        {CycloParams.H, () => Vocabulary.ToothHeight() + "(h)"}
                     })
                     {
                         // 
                         // ParameterGroupBox
                         // 
-                        GroupBox ParameterGroupBox = new GroupBox
+                        var ParameterGroupBox = new GroupBox
                         {
                             Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238))),
-                            Location = new System.Drawing.Point(6, 195 + i * PARAMBOX_SPACING),
                             Name = param.Key + "GroupBox",
                             Size = new System.Drawing.Size(ParamBoxWidth(), 49),
                             TabIndex = 4,
@@ -182,8 +190,9 @@ namespace BCC.Interface_View.StandardInterface.Geometry
                         nameCalls.Add(() => { ParameterGroupBox.Text = param.Value(); });
                         // 
                         // ParameterValueBox
+                        // Value set either by user or by model
                         // 
-                        TextBox ParameterValueBox = new TextBox
+                        var ParameterValueBox = new TextBox
                         {
                             Location = new System.Drawing.Point(7, 22),
                             Name = param.Key + "ValueBox",
@@ -204,10 +213,12 @@ namespace BCC.Interface_View.StandardInterface.Geometry
                                 e.Handled = true;
                             }
                         });
+                        getterCalls.Add(param.Key, () => double.Parse(ParameterValueBox.Text));
+                        setterCalls.Add(param.Key, v => ParameterValueBox.Text = "" + v);
                         // 
                         // ParameterCheckBox
                         // 
-                        CheckBox ParameterCheckBox = new CheckBox
+                        var ParameterCheckBox = new CheckBox
                         {
                             AutoSize = true,
                             Location = new System.Drawing.Point(167, 22),
@@ -222,8 +233,8 @@ namespace BCC.Interface_View.StandardInterface.Geometry
                         {
                             ParameterValueBox.Enabled = ParameterCheckBox.Checked;
                         });
-                        i++;
                         parameterControls.Add(ParameterGroupBox);
+                        availabilityCalls.Add(param.Key, () => ParameterCheckBox.Checked);
                     }
                 })();
 
@@ -247,12 +258,12 @@ namespace BCC.Interface_View.StandardInterface.Geometry
                     OutputTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
                     OutputTableLayout.RowStyles.Clear();
                     int currentRow = 0;
-                    foreach (var param in new Dictionary<string, Func<string>>()
+                    foreach (var param in new Dictionary<CycloParams, Func<string>>()
                     {
-                        {"ToothHeightFactor", () => Vocabulary.ToothHeightFactor() + "(λ)"},
-                        {"PinSpacingDiameter", () => Vocabulary.PinSpacingDiameter() + "(Dw)"},
-                        {"RollingCircleDiameter", () => Vocabulary.RollingCircleDiameter() + "(ρ)" },
-                        {"BaseDiameter", () => Vocabulary.BaseDiameter() + "(Db)" }
+                        {CycloParams.Λ, () => Vocabulary.ToothHeightFactor() + "(λ)"},
+                        {CycloParams.DW, () => Vocabulary.PinSpacingDiameter() + "(Dw)"},
+                        {CycloParams.Ρ, () => Vocabulary.RollingCircleDiameter() + "(ρ)" },
+                        {CycloParams.DB, () => Vocabulary.BaseDiameter() + "(Db)" }
                     })
                     {
                         var ParameterNameLabel = new Label()
@@ -265,6 +276,7 @@ namespace BCC.Interface_View.StandardInterface.Geometry
                             TabIndex = OutputTableLayout.RowCount * 2
                         };
                         nameCalls.Add(() => { ParameterNameLabel.Text = param.Value(); });
+                        // Value set by model
                         var ParameterValueLabel = new Label()
                         {
                             AutoSize = true,
@@ -273,6 +285,7 @@ namespace BCC.Interface_View.StandardInterface.Geometry
                             Name = param.Key + "ValueLabel",
                             TabIndex = OutputTableLayout.RowCount * 2 + 1
                         };
+                        setterCalls.Add(param.Key, v => ParameterValueLabel.Text = "" + v);
                         OutputTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
                         OutputTableLayout.Controls.Add(ParameterNameLabel, 0, currentRow);
                         OutputTableLayout.Controls.Add(ParameterValueLabel, 1, currentRow++);
@@ -330,5 +343,14 @@ namespace BCC.Interface_View.StandardInterface.Geometry
             this.ResumeLayout(false);
 
         }
+
+        public Panel GetDisplayPanel => DisplayPanel;
+
+        public object Get(CycloParams param) => getterCalls[param]();
+
+        public void Set(CycloParams param, object val) => setterCalls[param](val);
+
+
+        public bool IsAvailable(CycloParams param) => availabilityCalls.ContainsKey(param) ? availabilityCalls[param]() : false;
     }
 }

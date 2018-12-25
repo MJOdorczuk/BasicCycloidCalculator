@@ -15,9 +15,9 @@ namespace BCC.Core
         private static TabPage geometryPage = new TabPage() {
             Text = Vocabulary.Geometry()
         };
-        private static TabPage forcesPage = new TabPage()
+        private static TabPage loadPage = new TabPage()
         {
-            Text = Vocabulary.Tension()
+            Text = Vocabulary.Load()
         };
 
         public static Form Initialize()
@@ -44,7 +44,7 @@ namespace BCC.Core
                 Dock = DockStyle.Fill
             };
             workSpace.TabPages.Add(geometryPage);
-            workSpace.TabPages.Add(forcesPage);
+            workSpace.TabPages.Add(loadPage);
             geometryPage.Controls.Add(geometryMenu);
             return main;
         }

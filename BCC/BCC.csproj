@@ -142,6 +142,22 @@
       <DependentUpon>TensionMenu.cs</DependentUpon>
     </Compile>
     <Compile Include="Archive\Model.cs" />
+    <Compile Include="Core\Computation\Nodes\BiNode.cs" />
+    <Compile Include="Core\Computation\Nodes\BiNodes\Power.cs" />
+    <Compile Include="Core\Computation\Nodes\MultiNode.cs" />
+    <Compile Include="Core\Computation\Nodes\MultiNodes\Product.cs" />
+    <Compile Include="Core\Computation\Nodes\MultiNodes\Sum.cs" />
+    <Compile Include="Core\Computation\Nodes\Node.cs" />
+    <Compile Include="Core\Computation\Nodes\UniNode.cs" />
+    <Compile Include="Core\Computation\Nodes\UniNodes\Negation.cs" />
+    <Compile Include="Core\Computation\Nodes\UniNodes\SeriesNode.cs" />
+    <Compile Include="Core\Computation\Nodes\UniNodes\SeriesNodes\SumSeries.cs" />
+    <Compile Include="Core\Computation\Nodes\Union.cs" />
+    <Compile Include="Core\Computation\Nodes\Unions\Value.cs" />
+    <Compile Include="Core\Computation\Nodes\Unions\Variable.cs" />
+    <Compile Include="Core\Geometry\Cycloid.cs" />
+    <Compile Include="Core\Exceptions\WrongParameterValueException.cs" />
+    <Compile Include="Core\Geometry\GeometryModel.cs" />
     <Compile Include="Core\Model.cs" />
     <Compile Include="Interface Factory\Generator.cs" />
     <Compile Include="Interface View\MetroInterface\MyMetroForm.cs">
@@ -156,7 +172,9 @@
     <Compile Include="Interface View\StandardInterface\StandardForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Interface View\StandardInterface\Tension\LoadMenu.cs" />
+    <Compile Include="Interface View\StandardInterface\Tension\LoadMenu.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Miscs\Vocabulary.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -200,6 +218,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Interface View\StandardInterface\StandardForm.resx">
       <DependentUpon>StandardForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Interface View\StandardInterface\Tension\LoadMenu.resx">
+      <DependentUpon>LoadMenu.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
