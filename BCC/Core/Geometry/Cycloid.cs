@@ -7,21 +7,7 @@ using System.Threading.Tasks;
 
 namespace BCC.Core.Geometry
 {
-    public enum CycloParams
-    {
-        Z,
-        G,
-        DA,
-        DF,
-        E,
-        H,
-        DG,
-        Λ,
-        DW,
-        Ρ,
-        DB,
-        EPI
-    }
+    
 
     class Cycloid
     {

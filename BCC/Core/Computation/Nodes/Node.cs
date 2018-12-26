@@ -65,14 +65,5 @@ namespace BCC.Core.Computation.Nodes
             }
             return ret + ")";
         }
-
-        public override int GetHashCode()
-        {
-            var hashCode = 118668325;
-            hashCode = hashCode * -1521134295 + EqualityComparer<List<Node>>.Default.GetHashCode(nodesUnder);
-            hashCode = hashCode * -1521134295 + EqualityComparer<List<Node>>.Default.GetHashCode(NodesUnder);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Signature);
-            return hashCode;
-        }
     }
 }

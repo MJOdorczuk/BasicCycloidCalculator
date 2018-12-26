@@ -158,6 +158,7 @@
     <Compile Include="Core\Geometry\Cycloid.cs" />
     <Compile Include="Core\Exceptions\WrongParameterValueException.cs" />
     <Compile Include="Core\Geometry\GeometryModel.cs" />
+    <Compile Include="Core\Geometry\SimpleGeometryModel.cs" />
     <Compile Include="Core\Model.cs" />
     <Compile Include="Interface Factory\Generator.cs" />
     <Compile Include="Interface View\MetroInterface\MyMetroForm.cs">

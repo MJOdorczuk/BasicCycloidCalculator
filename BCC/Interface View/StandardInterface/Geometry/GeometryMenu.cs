@@ -10,16 +10,19 @@ namespace BCC.Interface_View.StandardInterface.Geometry
     {
         private GroupBox ParamsGroupBox;
         private FlowLayoutPanel ParameterFlowLayoutPanel;
-        private static readonly int PARAMBOX_WIDTH = 360;
+        private readonly int PARAMBOX_WIDTH;
         private readonly List<Action> nameCalls = new List<Action>();
         private readonly Dictionary<CycloParams, Func<object>> getterCalls = new Dictionary<CycloParams, Func<object>>();
         private readonly Dictionary<CycloParams, Action<object>> setterCalls = new Dictionary<CycloParams, Action<object>>();
         private readonly Dictionary<CycloParams, Func<bool>> availabilityCalls = new Dictionary<CycloParams, Func<bool>>();
         private Panel DisplayPanel;
         private Func<int> ParamBoxWidth;
+        private readonly GeometryModel model;
 
-        public GeometryMenu()
+        public GeometryMenu(GeometryModel model, int PARAMBOX_WIDTH = 360)
         {
+            this.model = model;
+            this.PARAMBOX_WIDTH = PARAMBOX_WIDTH;
             InitializeComponent();
 
             this.ParamsGroupBox.Width = PARAMBOX_WIDTH;
@@ -49,7 +52,7 @@ namespace BCC.Interface_View.StandardInterface.Geometry
                         Text = Vocabulary.ProfileType(),
                         Dock = DockStyle.Top
                     };
-                    nameCalls.Add(new Action(() => {
+                    Vocabulary.AddNameCall(new Action(() => {
                         ProfileTypeGroupBox.Text = Vocabulary.ProfileType();
                     }));
                     // 
@@ -71,7 +74,7 @@ namespace BCC.Interface_View.StandardInterface.Geometry
                     ProfileTypeGroupBox.Controls.Add(ProfileTypeComboBox);
                     ProfileTypeComboBox.SelectedIndex = 0;
                     parameterControls.Add(ProfileTypeGroupBox);
-                    nameCalls.Add(new Action(() => {
+                    Vocabulary.AddNameCall(new Action(() => {
                         ProfileTypeComboBox.Items.Clear();
                         ProfileTypeComboBox.Items.AddRange(new object[] {
                         Vocabulary.Epicycloid(),
@@ -96,7 +99,7 @@ namespace BCC.Interface_View.StandardInterface.Geometry
                         Text = Vocabulary.TeethQuantity(),
                         Dock = DockStyle.Top
                     };
-                    nameCalls.Add(new Action(() => {
+                    Vocabulary.AddNameCall(new Action(() => {
                         TeethQuantityGroupBox.Text = Vocabulary.TeethQuantity();
                     }));
                     // 
@@ -131,7 +134,7 @@ namespace BCC.Interface_View.StandardInterface.Geometry
                         Text = Vocabulary.RollDiameter(),
                         Dock = DockStyle.Top
                     };
-                    nameCalls.Add(new Action(() => {
+                    Vocabulary.AddNameCall(new Action(() => {
                         RollDiameterGroupBox.Text = Vocabulary.RollDiameter();
                     }));
                     // 
@@ -187,7 +190,7 @@ namespace BCC.Interface_View.StandardInterface.Geometry
                             Text = param.Value(),
                             Dock = DockStyle.Top
                         };
-                        nameCalls.Add(() => { ParameterGroupBox.Text = param.Value(); });
+                        Vocabulary.AddNameCall(() => { ParameterGroupBox.Text = param.Value(); });
                         // 
                         // ParameterValueBox
                         // Value set either by user or by model
@@ -275,7 +278,7 @@ namespace BCC.Interface_View.StandardInterface.Geometry
                             Text = param.Value(),
                             TabIndex = OutputTableLayout.RowCount * 2
                         };
-                        nameCalls.Add(() => { ParameterNameLabel.Text = param.Value(); });
+                        Vocabulary.AddNameCall(() => { ParameterNameLabel.Text = param.Value(); });
                         // Value set by model
                         var ParameterValueLabel = new Label()
                         {
@@ -346,11 +349,12 @@ namespace BCC.Interface_View.StandardInterface.Geometry
 
         public Panel GetDisplayPanel => DisplayPanel;
 
-        public object Get(CycloParams param) => getterCalls[param]();
+        public object Get(CycloParams param) => 
+            IsAvailable(param) ? getterCalls[param]() : null;
 
         public void Set(CycloParams param, object val) => setterCalls[param](val);
 
-
-        public bool IsAvailable(CycloParams param) => availabilityCalls.ContainsKey(param) ? availabilityCalls[param]() : false;
+        public bool IsAvailable(CycloParams param) => 
+            availabilityCalls.ContainsKey(param) ? availabilityCalls[param]() : true;
     }
 }

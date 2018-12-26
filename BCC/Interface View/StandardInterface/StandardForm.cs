@@ -1,4 +1,5 @@
-﻿using BCC.Miscs;
+﻿using BCC.Core.Geometry;
+using BCC.Miscs;
 using System.Windows.Forms;
 
 namespace BCC.Interface_View.StandardInterface
@@ -21,12 +22,14 @@ namespace BCC.Interface_View.StandardInterface
         private TabPage tabPage1;
         private Button button1;
         private ToolStripMenuItem helpToolStripMenuItem;
+        
 
         public TabControl WorkSpace => WorkTabsControl;
 
         public StandardForm()
         {
             InitializeComponent();
+            
         }
 
         private void InitializeComponent()

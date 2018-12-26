@@ -11,6 +11,9 @@ namespace BCC.Miscs
         public enum Language { POLISH, ENGLISH}
         private static Language language = Language.POLISH;
         private static readonly string NOT_IMPLEMENTED_MESSAGE = "Translation not implemented yet";
+        private static readonly List<Action> nameCalls = new List<Action>();
+
+        public static void AddNameCall(Action action) => nameCalls.Add(action);
 
         internal static string Geometry()
         {
@@ -153,6 +156,10 @@ namespace BCC.Miscs
                 case Language.ENGLISH:
                     return "Tooth height factor";
             }
+            return NOT_IMPLEMENTED_MESSAGE;
+        }
+        internal static string NotImplementedYet()
+        {
             return NOT_IMPLEMENTED_MESSAGE;
         }
         internal static string PinSpacingDiameter()

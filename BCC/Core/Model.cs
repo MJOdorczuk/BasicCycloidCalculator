@@ -1,4 +1,5 @@
-﻿using BCC.Interface_View.StandardInterface;
+﻿using BCC.Core.Geometry;
+using BCC.Interface_View.StandardInterface;
 using BCC.Interface_View.StandardInterface.Geometry;
 using BCC.Miscs;
 using System.Drawing;
@@ -11,10 +12,8 @@ namespace BCC.Core
 
         private static StandardForm main;
         private static TabControl workSpace;
-        private static GeometryMenu geometryMenu;
-        private static TabPage geometryPage = new TabPage() {
-            Text = Vocabulary.Geometry()
-        };
+        private static GeometryModel geometryModel = new SimpleGeometryModel();
+        private static TabPage geometryPage = new TabPage();
         private static TabPage loadPage = new TabPage()
         {
             Text = Vocabulary.Load()
@@ -22,6 +21,10 @@ namespace BCC.Core
 
         public static Form Initialize()
         {
+            geometryPage.Text = Vocabulary.Geometry();
+            Vocabulary.AddNameCall(() => geometryPage.Text = Vocabulary.Geometry());
+            loadPage.Text = Vocabulary.Load();
+            Vocabulary.AddNameCall(() => loadPage.Text = Vocabulary.Load());
             Model.main = new StandardForm()
             {
                 Width = 1280,
@@ -36,13 +39,11 @@ namespace BCC.Core
                 ShowIcon = false,
             };
             Model.workSpace = Model.main.WorkSpace;
-            Model.geometryMenu = new GeometryMenu()
-            {
-                Visible = true,
-                Enabled = true,
-                AutoSize = true,
-                Dock = DockStyle.Fill
-            };
+            var geometryMenu = geometryModel.GetMenu();
+            geometryMenu.Visible = true;
+            geometryMenu.Enabled = true;
+            geometryMenu.AutoSize = true;
+            geometryMenu.Dock = DockStyle.Fill;
             workSpace.TabPages.Add(geometryPage);
             workSpace.TabPages.Add(loadPage);
             geometryPage.Controls.Add(geometryMenu);

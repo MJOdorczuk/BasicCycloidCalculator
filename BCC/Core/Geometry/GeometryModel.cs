@@ -1,65 +1,142 @@
-﻿using BCC.Interface_View.StandardInterface.Geometry;
+﻿using BCC.Interface_View.StandardInterface;
+using BCC.Interface_View.StandardInterface.Geometry;
+using BCC.Miscs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace BCC.Core.Geometry
 {
-    class GeometryModel
+    public enum CycloParams
     {
-        private static class CliqueManager
+        Z,
+        G,
+        DA,
+        DF,
+        E,
+        H,
+        DG,
+        Λ,
+        DW,
+        Ρ,
+        DB,
+        EPI
+    }
+
+    public enum ErrorTypes
+    {
+        OUT_OF_RANGE,
+        NO_POSSIBLE_CLIQUE,
+        INCOMPLETE_CLIQUE,
+        CURVATURE_REQUIREMENT,
+        TOOTH_CUTTING_REQUIREMENT,
+        NEIGHBOURHOOD_REQUIREMENT
+    }
+
+    abstract class GeometryModel
+    {
+        // The view and the control for geometry computation
+        private GeometryMenu view = null;
+
+        // Parameters lists
+        public abstract List<CycloParams> OptionalParams();
+        public abstract List<CycloParams> ObligatoryIntParams();
+        public abstract List<CycloParams> ObligatoryFloatParams();
+        public abstract List<CycloParams> OutputParams();
+        public abstract List<List<CycloParams>> PossibleCliques(params List<CycloParams>[] cliques);
+
+        // Generating and binding a view with the model
+        public virtual GeometryMenu GetMenu()
         {
-            private static readonly List<List<CycloParams>> possibleCliques = new List<List<CycloParams>>()
+            if (view is null)
             {
-                new List<CycloParams>(){CycloParams.DA, CycloParams.DF },
-                new List<CycloParams>(){CycloParams.DA, CycloParams.DG },
-                new List<CycloParams>(){CycloParams.DA, CycloParams.E },
-                new List<CycloParams>(){CycloParams.DA, CycloParams.H },
-                new List<CycloParams>(){CycloParams.DF, CycloParams.DG },
-                new List<CycloParams>(){CycloParams.DF, CycloParams.E },
-                new List<CycloParams>(){CycloParams.DF, CycloParams.H },
-                new List<CycloParams>(){CycloParams.DG, CycloParams.E },
-                new List<CycloParams>(){CycloParams.DG, CycloParams.H }
-            };
-
-            public static bool IsPossibleClique(List<CycloParams> clique)
-            {
-                return possibleCliques.Exists(c =>
-                {
-                    foreach(var p in clique) if (!c.Contains(p)) return false;
-                    foreach(var p in c) if (!clique.Contains(p)) return false;
-                    return true;
-                });
+                view = new GeometryMenu(this, 360);
             }
+            return view;
+        }
 
-            public static List<List<CycloParams>> ComplementCLique(List<CycloParams> clique)
+        // Transferring data to and from the view
+        protected Dictionary<CycloParams, object> DownLoadData()
+        {
+            var ret = new Dictionary<CycloParams, object>();
+            foreach(var param in ObligatoryIntParams())
             {
-                var ret = new List<List<CycloParams>>();
-                foreach(var pClique in possibleCliques)
-                {
-                    var over = clique.Except(pClique);
-                    var c = pClique.Except(clique);
-                    if(over.Count() == 0)
-                    {
-                        ret.Add(c.ToList());
-                    }
-                }
-                return ret;
+                ret.Add(param, view.Get(param));
+            }
+            foreach(var param in ObligatoryFloatParams())
+            {
+                ret.Add(param, view.Get(param));
+            }
+            foreach(var param in OptionalParams())
+            {
+                if (view.IsAvailable(param)) ret.Add(param, view.Get(param));
+            }
+            return ret;
+        }
+        protected void UpLoadData(Dictionary<CycloParams, object> data)
+        {
+            foreach(var param in data)
+            {
+                view.Set(param.Key, param.Value);
             }
         }
 
-        private readonly GeometryMenu menu;
+        // Requirements checkers with actions
+        protected abstract bool IsPositiveValue(CycloParams param, double value);
+        protected abstract bool IsCliquePossible(List<CycloParams> clique);
+        protected abstract bool IsCurvatureRequirementMet(Dictionary<CycloParams, double> vals, bool epi);
+        protected abstract bool IsToothCuttingRequirementMet(Dictionary<CycloParams, double> vals, bool epi);
+        protected abstract bool IsNeighbourhoodRequirementMet(Dictionary<CycloParams, double> vals, bool epi);
 
-        public GeometryModel(GeometryMenu menu)
+        // Overall requirements checker
+        protected bool AreRequirementsMet(Dictionary<CycloParams, double> vals, bool epi)
         {
-            this.menu = menu;
+            var ret = true;
+            foreach(var val in vals)
+            {
+                ret = true && IsPositiveValue(val.Key, val.Value);
+            }
+            ret = true && IsCliquePossible(vals.Keys.Intersect(OptionalParams()).ToList());
+            ret = true && IsCurvatureRequirementMet(vals, epi);
+            ret = true && IsToothCuttingRequirementMet(vals, epi);
+            ret = true && IsNeighbourhoodRequirementMet(vals, epi);
+            return ret;
         }
 
-        public void Update()
+        // Name calls for parameters
+        public Func<string> CallName(CycloParams param)
         {
-            int z = (int)menu.Get(CycloParams.Z);
-            double g = (double)menu.Get(CycloParams.G);
-            var clique = new List<CycloParams>();
-            foreach
+            switch (param)
+            {
+                case CycloParams.Z:
+                    return () => Vocabulary.TeethQuantity();
+                case CycloParams.G:
+                    return () => Vocabulary.RollDiameter();
+                case CycloParams.DA:
+                    return () => Vocabulary.MajorDiameter();
+                case CycloParams.DF:
+                    return () => Vocabulary.RootDiameter();
+                case CycloParams.E:
+                    return () => Vocabulary.Eccentricity();
+                case CycloParams.H:
+                    return () => Vocabulary.ToothHeight();
+                case CycloParams.DG:
+                    return () => Vocabulary.RollSpacingDiameter();
+                case CycloParams.Λ:
+                    return () => Vocabulary.ToothHeightFactor();
+                case CycloParams.DW:
+                    return () => Vocabulary.PinSpacingDiameter();
+                case CycloParams.Ρ:
+                    return () => Vocabulary.RollingCircleDiameter();
+                case CycloParams.DB:
+                    return () => Vocabulary.BaseDiameter();
+                case CycloParams.EPI:
+                    return () => Vocabulary.ProfileType();
+                default:
+                    return () => Vocabulary.NotImplementedYet();
+            }
         }
     }
 }
