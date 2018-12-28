@@ -157,6 +157,7 @@
     <Compile Include="Core\Computation\Nodes\Unions\Variable.cs" />
     <Compile Include="Core\Geometry\Cycloid.cs" />
     <Compile Include="Core\Exceptions\WrongParameterValueException.cs" />
+    <Compile Include="Core\Geometry\CycloidGeometry.cs" />
     <Compile Include="Core\Geometry\GeometryModel.cs" />
     <Compile Include="Core\Geometry\SimpleGeometryModel.cs" />
     <Compile Include="Core\Model.cs" />

@@ -12,7 +12,6 @@ namespace BCC
         [STAThread]
         static void Main()
         {
-            //var form = new MyMetroForm();
             var form = Model.Initialize();
             Application.Run(form);
         }

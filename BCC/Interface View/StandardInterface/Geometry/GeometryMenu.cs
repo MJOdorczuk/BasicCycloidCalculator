@@ -2,309 +2,65 @@
 using BCC.Miscs;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.Windows.Forms;
 
 namespace BCC.Interface_View.StandardInterface.Geometry
 {
-    class GeometryMenu : UserControl
+    
+
+    internal class GeometryMenu : UserControl
     {
+        public struct InitialParameters
+        {
+            internal GeometryModel model;
+            internal int PARAMBOX_WIDTH;
+            internal List<Control> parameterControls;
+            internal Dictionary<CycloParams, Func<object>> getterCalls;
+            internal Dictionary<CycloParams, Action<object>> setterCalls;
+            internal Dictionary<CycloParams, Func<bool>> availabilityCalls;
+        }
+
+        private static class StaticFields
+        {
+            public static readonly Pen widePen = new Pen(Brushes.Black)
+            {
+                Width = 4.0F,
+                LineJoin = LineJoin.Bevel
+            };
+            public const int INITIAL_POINT_DENSITY = 10000;
+        }
+
         private GroupBox ParamsGroupBox;
         private FlowLayoutPanel ParameterFlowLayoutPanel;
-        private readonly int PARAMBOX_WIDTH;
-        private readonly List<Action> nameCalls = new List<Action>();
-        private readonly Dictionary<CycloParams, Func<object>> getterCalls = new Dictionary<CycloParams, Func<object>>();
-        private readonly Dictionary<CycloParams, Action<object>> setterCalls = new Dictionary<CycloParams, Action<object>>();
-        private readonly Dictionary<CycloParams, Func<bool>> availabilityCalls = new Dictionary<CycloParams, Func<bool>>();
+        private readonly Dictionary<CycloParams, Func<object>> getterCalls;
+        private readonly Dictionary<CycloParams, Action<object>> setterCalls;
+        private readonly Dictionary<CycloParams, Func<bool>> availabilityCalls;
+        private readonly Graphics displayGraphics;
+        private Button button1;
         private Panel DisplayPanel;
-        private Func<int> ParamBoxWidth;
         private readonly GeometryModel model;
 
-        public GeometryMenu(GeometryModel model, int PARAMBOX_WIDTH = 360)
+        public GeometryMenu(InitialParameters initialParameters)
         {
-            this.model = model;
-            this.PARAMBOX_WIDTH = PARAMBOX_WIDTH;
+            this.model = initialParameters.model;
             InitializeComponent();
 
-            this.ParamsGroupBox.Width = PARAMBOX_WIDTH;
+            ParameterFlowLayoutPanel.Controls.AddRange(initialParameters.parameterControls.ToArray());
 
-            // Initialization of lambdas
-            new Action(() => {
-                this.ParamBoxWidth = () => ParameterFlowLayoutPanel.Width - 20;
-            })();
-
-            // Initialization of groupBoxes
-            new Action(() => {
-                var parameterControls = new List<Control>();
-
-                // Profile type group
-                new Action(() => {
-                    // 
-                    // ProfileTypeGroupBox
-                    // 
-                    var ProfileTypeGroupBox = new GroupBox
-                    {
-                        Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold),
-                        Location = new System.Drawing.Point(6, 19),
-                        Name = "ProfileTypeGroupBox",
-                        Size = new System.Drawing.Size(ParamBoxWidth(), 61),
-                        TabIndex = 1,
-                        TabStop = false,
-                        Text = Vocabulary.ProfileType(),
-                        Dock = DockStyle.Top
-                    };
-                    Vocabulary.AddNameCall(new Action(() => {
-                        ProfileTypeGroupBox.Text = Vocabulary.ProfileType();
-                    }));
-                    // 
-                    // ProfileTypeComboBox
-                    // Profile type set only by user
-                    // 
-                    var ProfileTypeComboBox = new ComboBox
-                    {
-                        Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238))),
-                        FormattingEnabled = true,
-                        Location = new System.Drawing.Point(6, 25),
-                        Name = "ProfileTypeComboBox",
-                        Size = new System.Drawing.Size(121, 24),
-                        TabIndex = 1
-                    };
-                    ProfileTypeComboBox.Items.AddRange(new object[] {
-                    Vocabulary.Epicycloid(),
-                    Vocabulary.Hipocycloid()});
-                    ProfileTypeGroupBox.Controls.Add(ProfileTypeComboBox);
-                    ProfileTypeComboBox.SelectedIndex = 0;
-                    parameterControls.Add(ProfileTypeGroupBox);
-                    Vocabulary.AddNameCall(new Action(() => {
-                        ProfileTypeComboBox.Items.Clear();
-                        ProfileTypeComboBox.Items.AddRange(new object[] {
-                        Vocabulary.Epicycloid(),
-                        Vocabulary.Hipocycloid()});
-                    }));
-                    getterCalls.Add(CycloParams.EPI, () => ProfileTypeComboBox.SelectedIndex == 0);
-                })();
-
-                // Teeth quantity group
-                new Action(() => {
-                    // 
-                    // TeethQuantityGroupBox
-                    // 
-                    var TeethQuantityGroupBox = new GroupBox
-                    {
-                        Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238))),
-                        Location = new System.Drawing.Point(6, 86),
-                        Name = "TeethQuantityGroupBox",
-                        Size = new System.Drawing.Size(ParamBoxWidth(), 48),
-                        TabIndex = 2,
-                        TabStop = false,
-                        Text = Vocabulary.TeethQuantity(),
-                        Dock = DockStyle.Top
-                    };
-                    Vocabulary.AddNameCall(new Action(() => {
-                        TeethQuantityGroupBox.Text = Vocabulary.TeethQuantity();
-                    }));
-                    // 
-                    // TeethQuantityUpDown
-                    // Teeth quantity set only by user
-                    // 
-                    var TeethQuantityUpDown = new NumericUpDown
-                    {
-                        Location = new System.Drawing.Point(7, 22),
-                        Name = "TeethQuantityUpDown",
-                        Size = new System.Drawing.Size(120, 22),
-                        TabIndex = 0
-                    };
-                    TeethQuantityGroupBox.Controls.Add(TeethQuantityUpDown);
-                    parameterControls.Add(TeethQuantityGroupBox);
-                    getterCalls.Add(CycloParams.Z, () => TeethQuantityUpDown.Value);
-                })();
-
-                // Roll diameter group
-                new Action(() => {
-                    // 
-                    // RollDiameterGroupBox
-                    // 
-                    var RollDiameterGroupBox = new GroupBox
-                    {
-                        Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238))),
-                        Location = new System.Drawing.Point(6, 140),
-                        Name = "RollDiameterGroupBox",
-                        Size = new System.Drawing.Size(ParamBoxWidth(), 49),
-                        TabIndex = 3,
-                        TabStop = false,
-                        Text = Vocabulary.RollDiameter(),
-                        Dock = DockStyle.Top
-                    };
-                    Vocabulary.AddNameCall(new Action(() => {
-                        RollDiameterGroupBox.Text = Vocabulary.RollDiameter();
-                    }));
-                    // 
-                    // RollDiameterValueBox
-                    // Roll diameter set only by user
-                    // 
-                    var RollDiameterValueBox = new TextBox
-                    {
-                        Location = new System.Drawing.Point(7, 22),
-                        Name = "RollDiameterValueBox",
-                        Size = new System.Drawing.Size(100, 22),
-                        TabIndex = 0
-                    };
-                    RollDiameterGroupBox.Controls.Add(RollDiameterValueBox);
-                    RollDiameterValueBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler((sender, e) =>
-                    {
-                        if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && (e.KeyChar != '.'))
-                        {
-                            e.Handled = true;
-                        }
-
-                        // only allow one decimal point
-                        if ((e.KeyChar == '.') && ((sender as TextBox).Text.IndexOf('.') > -1))
-                        {
-                            e.Handled = true;
-                        }
-                    });
-                    parameterControls.Add(RollDiameterGroupBox);
-                    getterCalls.Add(CycloParams.G, () => double.Parse(RollDiameterValueBox.Text));
-                })();
-
-                // Optional input parameters groups loop
-                new Action(() => {
-                    foreach(var param in new Dictionary<CycloParams, Func<string>>()
-                    {
-                        {CycloParams.DA, () => Vocabulary.MajorDiameter() + "(Dₐ)" },
-                        {CycloParams.DF, () => Vocabulary.RootDiameter() + "(Df)"},
-                        {CycloParams.DG, () => Vocabulary.RollSpacingDiameter() + "(Dg)" },
-                        {CycloParams.E, () => Vocabulary.Eccentricity() + "(e)"},
-                        {CycloParams.H, () => Vocabulary.ToothHeight() + "(h)"}
-                    })
-                    {
-                        // 
-                        // ParameterGroupBox
-                        // 
-                        var ParameterGroupBox = new GroupBox
-                        {
-                            Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238))),
-                            Name = param.Key + "GroupBox",
-                            Size = new System.Drawing.Size(ParamBoxWidth(), 49),
-                            TabIndex = 4,
-                            TabStop = false,
-                            Text = param.Value(),
-                            Dock = DockStyle.Top
-                        };
-                        Vocabulary.AddNameCall(() => { ParameterGroupBox.Text = param.Value(); });
-                        // 
-                        // ParameterValueBox
-                        // Value set either by user or by model
-                        // 
-                        var ParameterValueBox = new TextBox
-                        {
-                            Location = new System.Drawing.Point(7, 22),
-                            Name = param.Key + "ValueBox",
-                            Size = new System.Drawing.Size(100, 22),
-                            TabIndex = 0,
-                            Enabled = false
-                        };
-                        ParameterValueBox.KeyPress += new KeyPressEventHandler((sender, e) =>
-                        {
-                            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && (e.KeyChar != '.'))
-                            {
-                                e.Handled = true;
-                            }
-
-                            // only allow one decimal point
-                            if ((e.KeyChar == '.') && ((sender as TextBox).Text.IndexOf('.') > -1))
-                            {
-                                e.Handled = true;
-                            }
-                        });
-                        getterCalls.Add(param.Key, () => double.Parse(ParameterValueBox.Text));
-                        setterCalls.Add(param.Key, v => ParameterValueBox.Text = "" + v);
-                        // 
-                        // ParameterCheckBox
-                        // 
-                        var ParameterCheckBox = new CheckBox
-                        {
-                            AutoSize = true,
-                            Location = new System.Drawing.Point(167, 22),
-                            Name = param.Key + "CheckBox",
-                            Size = new System.Drawing.Size(15, 14),
-                            TabIndex = 1,
-                            UseVisualStyleBackColor = true
-                        };
-                        ParameterGroupBox.Controls.Add(ParameterCheckBox);
-                        ParameterGroupBox.Controls.Add(ParameterValueBox);
-                        ParameterCheckBox.CheckedChanged += new EventHandler((sender, e) =>
-                        {
-                            ParameterValueBox.Enabled = ParameterCheckBox.Checked;
-                        });
-                        parameterControls.Add(ParameterGroupBox);
-                        availabilityCalls.Add(param.Key, () => ParameterCheckBox.Checked);
-                    }
-                })();
-
-                // Output parameters groups loop
-                new Action(() => {
-
-                    // 
-                    // OutputTableLayout
-                    // 
-                    var OutputTableLayout = new TableLayoutPanel
-                    {
-                        AutoSize = true,
-                        AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink,
-                        ColumnCount = 2,
-                        Name = "OutputTableLayout",
-                        RowCount = 0,
-                        TabIndex = 0,
-                        CellBorderStyle = TableLayoutPanelCellBorderStyle.Single
-                };
-                    OutputTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                    OutputTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                    OutputTableLayout.RowStyles.Clear();
-                    int currentRow = 0;
-                    foreach (var param in new Dictionary<CycloParams, Func<string>>()
-                    {
-                        {CycloParams.Λ, () => Vocabulary.ToothHeightFactor() + "(λ)"},
-                        {CycloParams.DW, () => Vocabulary.PinSpacingDiameter() + "(Dw)"},
-                        {CycloParams.Ρ, () => Vocabulary.RollingCircleDiameter() + "(ρ)" },
-                        {CycloParams.DB, () => Vocabulary.BaseDiameter() + "(Db)" }
-                    })
-                    {
-                        var ParameterNameLabel = new Label()
-                        {
-                            AutoSize = true,
-                            Location = new System.Drawing.Point(3, 3),
-                            Size = new System.Drawing.Size(50, 15),
-                            Name = param.Key + "NameLabel",
-                            Text = param.Value(),
-                            TabIndex = OutputTableLayout.RowCount * 2
-                        };
-                        Vocabulary.AddNameCall(() => { ParameterNameLabel.Text = param.Value(); });
-                        // Value set by model
-                        var ParameterValueLabel = new Label()
-                        {
-                            AutoSize = true,
-                            Location = new System.Drawing.Point(3, 3),
-                            Size = new System.Drawing.Size(50, 15),
-                            Name = param.Key + "ValueLabel",
-                            TabIndex = OutputTableLayout.RowCount * 2 + 1
-                        };
-                        setterCalls.Add(param.Key, v => ParameterValueLabel.Text = "" + v);
-                        OutputTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                        OutputTableLayout.Controls.Add(ParameterNameLabel, 0, currentRow);
-                        OutputTableLayout.Controls.Add(ParameterValueLabel, 1, currentRow++);
-                    }
-                    OutputTableLayout.Size = new System.Drawing.Size(ParamBoxWidth(),OutputTableLayout.RowCount * 30);
-                    parameterControls.Add(OutputTableLayout);
-                })();
-
-
-                this.ParameterFlowLayoutPanel.Controls.AddRange(parameterControls.ToArray());
-            })();
+            this.ParamsGroupBox.Width = initialParameters.PARAMBOX_WIDTH;
+            this.getterCalls = initialParameters.getterCalls;
+            this.setterCalls = initialParameters.setterCalls;
+            this.availabilityCalls = initialParameters.availabilityCalls;
+            displayGraphics = DisplayPanel.CreateGraphics();
         }
 
         private void InitializeComponent()
         {
             this.ParamsGroupBox = new System.Windows.Forms.GroupBox();
+            this.button1 = new System.Windows.Forms.Button();
             this.ParameterFlowLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.DisplayPanel = new System.Windows.Forms.Panel();
             this.ParamsGroupBox.SuspendLayout();
@@ -312,6 +68,7 @@ namespace BCC.Interface_View.StandardInterface.Geometry
             // 
             // ParamsGroupBox
             // 
+            this.ParamsGroupBox.Controls.Add(this.button1);
             this.ParamsGroupBox.Controls.Add(this.ParameterFlowLayoutPanel);
             this.ParamsGroupBox.Dock = System.Windows.Forms.DockStyle.Left;
             this.ParamsGroupBox.Location = new System.Drawing.Point(0, 0);
@@ -319,6 +76,16 @@ namespace BCC.Interface_View.StandardInterface.Geometry
             this.ParamsGroupBox.Size = new System.Drawing.Size(214, 636);
             this.ParamsGroupBox.TabIndex = 0;
             this.ParamsGroupBox.TabStop = false;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(0, 0);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 0;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // ParameterFlowLayoutPanel
             // 
@@ -330,6 +97,7 @@ namespace BCC.Interface_View.StandardInterface.Geometry
             // 
             // DisplayPanel
             // 
+            this.DisplayPanel.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.DisplayPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.DisplayPanel.Location = new System.Drawing.Point(214, 0);
             this.DisplayPanel.Name = "DisplayPanel";
@@ -349,6 +117,38 @@ namespace BCC.Interface_View.StandardInterface.Geometry
 
         public Panel GetDisplayPanel => DisplayPanel;
 
+        public Action<double, Func<double,PointF>> GetRenderer(int pointDensity = StaticFields.INITIAL_POINT_DENSITY)
+        {
+            return (da, curve) =>
+            {
+                var box = DisplayPanel.Width > DisplayPanel.Height ? DisplayPanel.Height : DisplayPanel.Width;
+                var factor = 0.5 * box / da;
+                var x0 = DisplayPanel.Width / 2;
+                var y0 = DisplayPanel.Height / 2;
+                var curvePoints = new List<PointF>();
+                for(int i = 0; i < pointDensity; i++)
+                {
+                    var t = 2.0 * Math.PI * i / pointDensity;
+                    var x = (float)(x0 + curve(t).X * factor);
+                    var y = (float)(y0 + curve(t).Y * factor);
+                    curvePoints.Add(new PointF(x, y));
+                }
+                //Bitmap bitmap = new Bitmap(2 * x0, 2 * y0, PixelFormat.Format32bppArgb);
+                //Graphics graphics = Graphics.FromImage(bitMap);
+                DisplayPanel.Refresh();
+                displayGraphics.Clear(Color.White);
+                displayGraphics.FillRectangle(new SolidBrush(Color.White), 0, 0, x0 * 2, y0 * 2);
+                //graphics.Clear(Color.White);
+
+                displayGraphics.DrawClosedCurve(StaticFields.widePen, curvePoints.ToArray());
+                //graphics.DrawClosedCurve(widePen, cycloid);
+                //var name = "" + rnd.Next();
+                //bitMap.Save(@"D:\Desktop\studia\Automatyka i robotyka\Praca dyplomowa\" + name + ".bmp", ImageFormat.Bmp);
+                
+
+            };
+        }
+
         public object Get(CycloParams param) => 
             IsAvailable(param) ? getterCalls[param]() : null;
 
@@ -356,5 +156,10 @@ namespace BCC.Interface_View.StandardInterface.Geometry
 
         public bool IsAvailable(CycloParams param) => 
             availabilityCalls.ContainsKey(param) ? availabilityCalls[param]() : true;
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            model.Compute();
+        }
     }
 }

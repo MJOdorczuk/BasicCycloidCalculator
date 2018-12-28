@@ -11,6 +11,8 @@ namespace BCC.Core.Geometry
 
     class Cycloid
     {
+        public static double TRUE = 1.0, FALSE = 2.0;
+
         // z and g are necessary
         // two other variables necessary can be pairs of
         // da and df
@@ -90,8 +92,7 @@ namespace BCC.Core.Geometry
                 {
                     // z->g->da->dg->ρ->λ->db->e->da->dw
                     // ρ
-                    if (epi) ro = dg / (2 * (z + 1));
-                    else ro = dg / (2 * (z - 1));
+                    ro = dg / (2 * (z + (epi ? 1 : -1)));
                     // λ
                     ComputeLambdaFromRa();
                     // db
@@ -257,8 +258,10 @@ namespace BCC.Core.Geometry
         public void MakeHipocycloid() => epi = false;
         public Boolean IsEpicycloid => epi;
         public Boolean IsHipocycloid => !epi;
-        private Boolean AllIsSet => da > 0 && df > 0 && e > 0 && lambda > 0 && Dw > 0 && ro > 0 && dg > 0 && Db > 0 && g > 0 && z > 0;
-        private Boolean CurveReq
+        public Boolean AllIsSet => 
+            da > 0 && df > 0 && e > 0 && lambda > 0 && Dw > 0 &&
+            ro > 0 && dg > 0 && Db > 0 && g > 0 && z > 0;
+        public Boolean CurveReq
         {
             get
             {
@@ -278,7 +281,7 @@ namespace BCC.Core.Geometry
             }
         }
 
-        private Boolean CutReq
+        public Boolean CutReq
         {
             get
             {
@@ -305,7 +308,7 @@ namespace BCC.Core.Geometry
             }
         }
 
-        private Boolean NeighReq
+        public Boolean NeighReq
         {
             get
             {
@@ -375,7 +378,7 @@ namespace BCC.Core.Geometry
                     this.db = val;
                     break;
                 case CycloParams.EPI:
-                    this.epi = val != 0.0;
+                    this.epi = val != FALSE;
                     break;
             }
         }
@@ -406,8 +409,21 @@ namespace BCC.Core.Geometry
                     return this.ro;
                 case CycloParams.DB:
                     return this.db;
+                case CycloParams.EPI:
+                    return this.epi ? TRUE : FALSE;
             }
             return 0;
+        }
+
+        public Dictionary<CycloParams, double> GetAll()
+        {
+            var ret = new Dictionary<CycloParams, double>();
+            foreach(CycloParams param in Enum.GetValues(typeof(CycloParams)))
+            {
+                var val = Get(param);
+                if(val > 0) ret.Add(param, val);
+            }
+            return ret;
         }
 
 

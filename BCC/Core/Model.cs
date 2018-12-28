@@ -14,17 +14,12 @@ namespace BCC.Core
         private static TabControl workSpace;
         private static GeometryModel geometryModel = new SimpleGeometryModel();
         private static TabPage geometryPage = new TabPage();
-        private static TabPage loadPage = new TabPage()
-        {
-            Text = Vocabulary.Load()
-        };
+        private static TabPage loadPage = new TabPage();
 
         public static Form Initialize()
         {
-            geometryPage.Text = Vocabulary.Geometry();
-            Vocabulary.AddNameCall(() => geometryPage.Text = Vocabulary.Geometry());
-            loadPage.Text = Vocabulary.Load();
-            Vocabulary.AddNameCall(() => loadPage.Text = Vocabulary.Load());
+            Vocabulary.AddNameCall(() => geometryPage.Text = Vocabulary.TabPagesNames.Geometry());
+            Vocabulary.AddNameCall(() => loadPage.Text = Vocabulary.TabPagesNames.Load());
             Model.main = new StandardForm()
             {
                 Width = 1280,
@@ -32,7 +27,7 @@ namespace BCC.Core
                 Visible = true,
                 AutoSize = true,
                 Enabled = true,
-                MaximumSize = new Size(1280, 720),
+                MaximumSize = new Size(1920, 1080),
                 MinimumSize = new Size(1280, 720),
                 Text = "CycloCalc",
                 IsMdiContainer = true,
@@ -40,13 +35,10 @@ namespace BCC.Core
             };
             Model.workSpace = Model.main.WorkSpace;
             var geometryMenu = geometryModel.GetMenu();
-            geometryMenu.Visible = true;
-            geometryMenu.Enabled = true;
-            geometryMenu.AutoSize = true;
-            geometryMenu.Dock = DockStyle.Fill;
             workSpace.TabPages.Add(geometryPage);
             workSpace.TabPages.Add(loadPage);
             geometryPage.Controls.Add(geometryMenu);
+            Vocabulary.UpdateAllNames();
             return main;
         }
 

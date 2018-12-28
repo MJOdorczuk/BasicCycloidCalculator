@@ -155,12 +155,15 @@ namespace BCC.Interface_View.StandardInterface
             this.button1.TabIndex = 0;
             this.button1.Text = "button1";
             this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // StandardForm
             // 
             this.ClientSize = new System.Drawing.Size(1264, 681);
             this.Controls.Add(this.WorkTabsControl);
             this.Controls.Add(this.ISOMenuStrip);
+            this.MaximizeBox = false;
+            this.MaximumSize = new System.Drawing.Size(1920, 1080);
             this.Name = "StandardForm";
             this.ISOMenuStrip.ResumeLayout(false);
             this.ISOMenuStrip.PerformLayout();
@@ -169,6 +172,19 @@ namespace BCC.Interface_View.StandardInterface
             this.ResumeLayout(false);
             this.PerformLayout();
 
+        }
+
+        private void button1_Click(object sender, System.EventArgs e)
+        {
+            switch (Vocabulary.GetLanguage())
+            {
+                case Vocabulary.Language.POLISH:
+                    Vocabulary.SetLanguage(Vocabulary.Language.ENGLISH);
+                    break;
+                case Vocabulary.Language.ENGLISH:
+                    Vocabulary.SetLanguage(Vocabulary.Language.POLISH);
+                    break;
+            }
         }
     }
 }
