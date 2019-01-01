@@ -5,12 +5,13 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace BCC.Interface_View.StandardInterface.Geometry
 {
     
-
     internal class GeometryMenu : UserControl
     {
         public struct InitialParameters
@@ -23,6 +24,19 @@ namespace BCC.Interface_View.StandardInterface.Geometry
             internal Dictionary<CycloParams, Func<bool>> availabilityCalls;
         }
 
+        public class RenderComponents
+        {
+            public readonly Mutex mutex = new Mutex();
+            public readonly Renderer renderer;
+            public bool graphicsRendered = false;
+            public Func<double, PointF> curve;
+
+            public RenderComponents(Renderer renderer)
+            {
+                this.renderer = renderer;
+            }
+        }
+
         private static class StaticFields
         {
             public static readonly Pen widePen = new Pen(Brushes.Black)
@@ -31,6 +45,8 @@ namespace BCC.Interface_View.StandardInterface.Geometry
                 LineJoin = LineJoin.Bevel
             };
             public const int INITIAL_POINT_DENSITY = 10000;
+
+            public static int RefreshDelay = 100;
         }
 
         private GroupBox ParamsGroupBox;
@@ -38,23 +54,49 @@ namespace BCC.Interface_View.StandardInterface.Geometry
         private readonly Dictionary<CycloParams, Func<object>> getterCalls;
         private readonly Dictionary<CycloParams, Action<object>> setterCalls;
         private readonly Dictionary<CycloParams, Func<bool>> availabilityCalls;
-        private readonly Graphics displayGraphics;
         private Button button1;
         private Panel DisplayPanel;
         private readonly GeometryModel model;
+        private readonly RenderComponents renderComponents;
+        
 
         public GeometryMenu(InitialParameters initialParameters)
         {
             this.model = initialParameters.model;
             InitializeComponent();
 
-            ParameterFlowLayoutPanel.Controls.AddRange(initialParameters.parameterControls.ToArray());
+            ParameterFlowLayoutPanel.Controls.AddRange
+                (initialParameters.parameterControls.ToArray());
 
             this.ParamsGroupBox.Width = initialParameters.PARAMBOX_WIDTH;
             this.getterCalls = initialParameters.getterCalls;
             this.setterCalls = initialParameters.setterCalls;
             this.availabilityCalls = initialParameters.availabilityCalls;
-            displayGraphics = DisplayPanel.CreateGraphics();
+            renderComponents = new RenderComponents
+                (new GeometryRenderer(DisplayPanel.CreateGraphics()));
+            var menu = this;
+            Thread t = new Thread(() =>
+            {
+                while(true)
+                {
+                    Thread.Sleep(StaticFields.RefreshDelay);
+                    var renderer = Renderer;
+                    if (renderer is null) { }
+                    else
+                    {
+                        renderer.Display();
+                    }
+                }
+            });
+            Disposed += new EventHandler((sender, e) =>
+            {
+                t.Abort();
+            });
+            SizeChanged += new EventHandler((sender, e) =>
+            {
+                SetCurve();
+            });
+            t.Start();
         }
 
         private void InitializeComponent()
@@ -73,7 +115,7 @@ namespace BCC.Interface_View.StandardInterface.Geometry
             this.ParamsGroupBox.Dock = System.Windows.Forms.DockStyle.Left;
             this.ParamsGroupBox.Location = new System.Drawing.Point(0, 0);
             this.ParamsGroupBox.Name = "ParamsGroupBox";
-            this.ParamsGroupBox.Size = new System.Drawing.Size(214, 636);
+            this.ParamsGroupBox.Size = new System.Drawing.Size(214, 2500);
             this.ParamsGroupBox.TabIndex = 0;
             this.ParamsGroupBox.TabStop = false;
             // 
@@ -92,7 +134,7 @@ namespace BCC.Interface_View.StandardInterface.Geometry
             this.ParameterFlowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ParameterFlowLayoutPanel.Location = new System.Drawing.Point(3, 16);
             this.ParameterFlowLayoutPanel.Name = "ParameterFlowLayoutPanel";
-            this.ParameterFlowLayoutPanel.Size = new System.Drawing.Size(208, 617);
+            this.ParameterFlowLayoutPanel.Size = new System.Drawing.Size(208, 2481);
             this.ParameterFlowLayoutPanel.TabIndex = 2;
             // 
             // DisplayPanel
@@ -101,7 +143,7 @@ namespace BCC.Interface_View.StandardInterface.Geometry
             this.DisplayPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.DisplayPanel.Location = new System.Drawing.Point(214, 0);
             this.DisplayPanel.Name = "DisplayPanel";
-            this.DisplayPanel.Size = new System.Drawing.Size(755, 636);
+            this.DisplayPanel.Size = new System.Drawing.Size(2286, 2500);
             this.DisplayPanel.TabIndex = 1;
             // 
             // GeometryMenu
@@ -109,44 +151,46 @@ namespace BCC.Interface_View.StandardInterface.Geometry
             this.Controls.Add(this.DisplayPanel);
             this.Controls.Add(this.ParamsGroupBox);
             this.Name = "GeometryMenu";
-            this.Size = new System.Drawing.Size(969, 636);
+            this.Size = new System.Drawing.Size(2500, 2500);
             this.ParamsGroupBox.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
-        public Panel GetDisplayPanel => DisplayPanel;
-
-        public Action<double, Func<double,PointF>> GetRenderer(int pointDensity = StaticFields.INITIAL_POINT_DENSITY)
+        private Renderer Renderer
         {
-            return (da, curve) =>
+            get
             {
-                var box = DisplayPanel.Width > DisplayPanel.Height ? DisplayPanel.Height : DisplayPanel.Width;
-                var factor = 0.5 * box / da;
-                var x0 = DisplayPanel.Width / 2;
-                var y0 = DisplayPanel.Height / 2;
-                var curvePoints = new List<PointF>();
-                for(int i = 0; i < pointDensity; i++)
+                renderComponents.mutex.WaitOne();
+                Renderer ret = null;
+                if (!renderComponents.graphicsRendered)
                 {
-                    var t = 2.0 * Math.PI * i / pointDensity;
-                    var x = (float)(x0 + curve(t).X * factor);
-                    var y = (float)(y0 + curve(t).Y * factor);
-                    curvePoints.Add(new PointF(x, y));
+                    ret = renderComponents.renderer;
+                    renderComponents.graphicsRendered = true;
                 }
-                //Bitmap bitmap = new Bitmap(2 * x0, 2 * y0, PixelFormat.Format32bppArgb);
-                //Graphics graphics = Graphics.FromImage(bitMap);
-                DisplayPanel.Refresh();
-                displayGraphics.Clear(Color.White);
-                displayGraphics.FillRectangle(new SolidBrush(Color.White), 0, 0, x0 * 2, y0 * 2);
-                //graphics.Clear(Color.White);
+                renderComponents.mutex.ReleaseMutex();
+                return ret;
+            }
+        }
 
-                displayGraphics.DrawClosedCurve(StaticFields.widePen, curvePoints.ToArray());
-                //graphics.DrawClosedCurve(widePen, cycloid);
-                //var name = "" + rnd.Next();
-                //bitMap.Save(@"D:\Desktop\studia\Automatyka i robotyka\Praca dyplomowa\" + name + ".bmp", ImageFormat.Bmp);
-                
-
-            };
+        public void SetCurve(Func<double, PointF> curve = null)
+        {
+            renderComponents.mutex.WaitOne();
+            renderComponents.renderer.Reset();
+            if(curve is null)
+            {
+                if(!(renderComponents.curve is null))
+                    renderComponents.renderer.AddCentralCurve
+                        (renderComponents.curve, DisplayPanel.Width, DisplayPanel.Height);
+            }
+            else
+            {
+                renderComponents.renderer.AddCentralCurve
+                    (curve, DisplayPanel.Width, DisplayPanel.Height);
+                renderComponents.curve = curve;
+            }
+            renderComponents.graphicsRendered = false;
+            renderComponents.mutex.ReleaseMutex();
         }
 
         public object Get(CycloParams param) => 
@@ -159,7 +203,7 @@ namespace BCC.Interface_View.StandardInterface.Geometry
 
         private void button1_Click(object sender, EventArgs e)
         {
-            model.Compute();
+            model.Act();
         }
     }
 }

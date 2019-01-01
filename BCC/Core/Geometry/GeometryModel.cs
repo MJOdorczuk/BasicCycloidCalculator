@@ -41,11 +41,52 @@ namespace BCC.Core.Geometry
     {
         // The view and the control for geometry computation
         protected GeometryMenu view = null;
-        
+
+        protected readonly Dictionary<CycloParams, Action<string>> BubbleCalls = new Dictionary<CycloParams, Action<string>>();
 
         private static class StaticFields
         {
             public static readonly int PARAM_BOX_WIDTH = 360;
+            public static readonly int VALUE_PRECISION = 3;
+        }
+
+        private static class Calls
+        {
+            // Name calls for parameters
+            public static Func<string> CallName(CycloParams param)
+            {
+                switch (param)
+                {
+                    case CycloParams.Z:
+                        return () => Vocabulary.ParameterLabels.Geometry.TeethQuantity();
+                    case CycloParams.G:
+                        return () => Vocabulary.ParameterLabels.Geometry.RollRadius();
+                    case CycloParams.DA:
+                        return () => Vocabulary.ParameterLabels.Geometry.MajorDiameter();
+                    case CycloParams.DF:
+                        return () => Vocabulary.ParameterLabels.Geometry.RootDiameter();
+                    case CycloParams.E:
+                        return () => Vocabulary.ParameterLabels.Geometry.Eccentricity();
+                    case CycloParams.H:
+                        return () => Vocabulary.ParameterLabels.Geometry.ToothHeight();
+                    case CycloParams.DG:
+                        return () => Vocabulary.ParameterLabels.Geometry.RollSpacingDiameter();
+                    case CycloParams.Λ:
+                        return () => Vocabulary.ParameterLabels.Geometry.ToothHeightFactor();
+                    case CycloParams.DW:
+                        return () => Vocabulary.ParameterLabels.Geometry.PinSpacingDiameter();
+                    case CycloParams.Ρ:
+                        return () => Vocabulary.ParameterLabels.Geometry.RollingCircleDiameter();
+                    case CycloParams.DB:
+                        return () => Vocabulary.ParameterLabels.Geometry.BaseDiameter();
+                    case CycloParams.EPI:
+                        return () => Vocabulary.ParameterLabels.Geometry.ProfileType();
+                    default:
+                        return () => Vocabulary.NotImplementedYet();
+                }
+            }
+
+
         }
 
         // Parameters lists
@@ -74,10 +115,12 @@ namespace BCC.Core.Geometry
         // Generating and binding a view with the model
         public virtual GeometryMenu GetMenu()
         {
+            GeometryModel parentModel = this;
             if (view is null)
             {
                 var parameterControls = new List<Control>();
-                
+                var toolTip = new ToolTip();
+
                 int ParamBoxWidth() => StaticFields.PARAM_BOX_WIDTH - 20;
                 Dictionary<CycloParams, Func<object>> getterCalls = new Dictionary<CycloParams, Func<object>>();
                 Dictionary<CycloParams, Action<object>> setterCalls = new Dictionary<CycloParams, Action<object>>();
@@ -99,7 +142,6 @@ namespace BCC.Core.Geometry
                         var ProfileTypeGroupBox = new GroupBox
                         {
                             Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold),
-                            Name = "ProfileTypeGroupBox",
                             Size = new System.Drawing.Size(ParamBoxWidth(), 61),
                             TabIndex = 1,
                             TabStop = false,
@@ -117,7 +159,6 @@ namespace BCC.Core.Geometry
                             Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238))),
                             FormattingEnabled = true,
                             Location = new System.Drawing.Point(6, 25),
-                            Name = "ProfileTypeComboBox",
                             Size = new System.Drawing.Size(121, 24),
                             TabIndex = 1
                         };
@@ -133,7 +174,22 @@ namespace BCC.Core.Geometry
                         Vocabulary.ParameterLabels.Geometry.Hipocycloid()});
                         }));
                         getterCalls.Add(CycloParams.EPI, () => ProfileTypeComboBox.SelectedIndex < 1);
+                        BubbleCalls.Add(CycloParams.EPI, message => 
+                        {
+                            if(message is null)
+                            {
+                                ProfileTypeComboBox.BackColor = SystemColors.Window;
+                                toolTip.SetToolTip(ProfileTypeGroupBox, "");
+                            }
+                            else
+                            {
+                                ProfileTypeComboBox.BackColor = Color.Red;
+                                toolTip.SetToolTip(ProfileTypeGroupBox, message);
+                            }
+                        });
                         ProfileTypeComboBox.SelectedIndex = 0;
+                        // 
+                        ProfileTypeComboBox.SelectedIndexChanged += (sender, e) => Act();
                     })();
 
                     // Obligatory integer parameters
@@ -168,7 +224,21 @@ namespace BCC.Core.Geometry
                             };
                             ParameterGroupBox.Controls.Add(ParameterUpDown);
                             parameterControls.Add(ParameterGroupBox);
+                            ParameterUpDown.ValueChanged += (sender, e) => Act();
                             getterCalls.Add(param, () => ParameterUpDown.Value);
+                            BubbleCalls.Add(param, message =>
+                            {
+                                if (message is null)
+                                {
+                                    ParameterUpDown.BackColor = SystemColors.Window;
+                                    toolTip.SetToolTip(ParameterGroupBox, "");
+                                }
+                                else
+                                {
+                                    ParameterUpDown.BackColor = Color.Red;
+                                    toolTip.SetToolTip(ParameterGroupBox, message);
+                                }
+                            });
                         }
                     })();
 
@@ -192,29 +262,34 @@ namespace BCC.Core.Geometry
                             // ParameterValueBox
                             // The parameter is set only by user
                             // 
-                            var ParameterValueBox = new TextBox
+                            var ParameterUpDown = new NumericUpDown()
                             {
                                 Location = new System.Drawing.Point(7, 22),
-                                Size = new System.Drawing.Size(100, 22),
+                                Size = new System.Drawing.Size(120, 22),
                                 TabIndex = 0,
-                                Text = "0"
+                                Maximum = 10000,
+                                Value = (decimal)5.0,
+                                Minimum = (decimal)Math.Pow(10, -StaticFields.VALUE_PRECISION),
+                                Increment = (decimal)Math.Pow(10, 1 - StaticFields.VALUE_PRECISION),
+                                DecimalPlaces = StaticFields.VALUE_PRECISION
                             };
-                            ParameterGroupBox.Controls.Add(ParameterValueBox);
-                            ParameterValueBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler((sender, e) =>
+                            ParameterGroupBox.Controls.Add(ParameterUpDown);
+                            parameterControls.Add(ParameterGroupBox);
+                            ParameterUpDown.ValueChanged += (sender, e) => Act();
+                            getterCalls.Add(param, () => ParameterUpDown.Value);
+                            BubbleCalls.Add(param, message =>
                             {
-                                if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && (e.KeyChar != '.'))
+                                if (message is null)
                                 {
-                                    e.Handled = true;
+                                    ParameterUpDown.BackColor = SystemColors.Window;
+                                    toolTip.SetToolTip(ParameterGroupBox, "");
                                 }
-
-                                // only allow one decimal point
-                                if ((e.KeyChar == '.') && ((sender as TextBox).Text.IndexOf('.') > -1))
+                                else
                                 {
-                                    e.Handled = true;
+                                    ParameterUpDown.BackColor = Color.Red;
+                                    toolTip.SetToolTip(ParameterGroupBox, message);
                                 }
                             });
-                            parameterControls.Add(ParameterGroupBox);
-                            getterCalls.Add(param, () => double.Parse("0" + ParameterValueBox.Text));
                         }
                     })();
 
@@ -238,29 +313,36 @@ namespace BCC.Core.Geometry
                             // ParameterValueBox
                             // Value set either by user or by model
                             // 
-                            var ParameterValueBox = new TextBox
+                            var ParameterUpDown = new NumericUpDown()
                             {
                                 Location = new System.Drawing.Point(7, 22),
-                                Size = new System.Drawing.Size(100, 22),
+                                Size = new System.Drawing.Size(120, 22),
                                 TabIndex = 0,
-                                Enabled = false,
-                                Text = "0"
+                                Maximum = 10000,
+                                Value = (decimal)Math.Pow(10, 1 - StaticFields.VALUE_PRECISION),
+                                Minimum = (decimal)Math.Pow(10, -StaticFields.VALUE_PRECISION),
+                                Increment = (decimal)Math.Pow(10, 1 - StaticFields.VALUE_PRECISION),
+                                DecimalPlaces = StaticFields.VALUE_PRECISION,
+                                Enabled = false
                             };
-                            ParameterValueBox.KeyPress += new KeyPressEventHandler((sender, e) =>
+                            ParameterGroupBox.Controls.Add(ParameterUpDown);
+                            parameterControls.Add(ParameterGroupBox);
+                            ParameterUpDown.ValueChanged += (sender, e) => Act();
+                            getterCalls.Add(param, () => ParameterUpDown.Value);
+                            BubbleCalls.Add(param, message =>
                             {
-                                if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && (e.KeyChar != '.'))
+                                if (message is null)
                                 {
-                                    e.Handled = true;
+                                    ParameterUpDown.BackColor = SystemColors.Window;
+                                    toolTip.SetToolTip(ParameterGroupBox, "");
                                 }
-
-                                // only allow one decimal point
-                                if ((e.KeyChar == '.') && ((sender as TextBox).Text.IndexOf('.') > -1))
+                                else
                                 {
-                                    e.Handled = true;
+                                    ParameterUpDown.BackColor = Color.Red;
+                                    toolTip.SetToolTip(ParameterGroupBox, message);
                                 }
                             });
-                            getterCalls.Add(param, () => double.Parse(ParameterValueBox.Text));
-                            setterCalls.Add(param, v => ParameterValueBox.Text = "" + v);
+                            setterCalls.Add(param, v => ParameterUpDown.Text = "" + v);
                             // 
                             // ParameterCheckBox
                             // 
@@ -273,13 +355,13 @@ namespace BCC.Core.Geometry
                                 UseVisualStyleBackColor = true
                             };
                             ParameterGroupBox.Controls.Add(ParameterCheckBox);
-                            ParameterGroupBox.Controls.Add(ParameterValueBox);
+                            ParameterGroupBox.Controls.Add(ParameterUpDown);
                             ParameterCheckBox.CheckedChanged += new EventHandler((sender, e) =>
                             {
-                                ParameterValueBox.Enabled = ParameterCheckBox.Checked;
+                                ParameterUpDown.Enabled = ParameterCheckBox.Checked;
                             });
                             parameterControls.Add(ParameterGroupBox);
-                            availabilityCalls.Add(param, () => ParameterCheckBox.Checked);
+                            availabilityCalls.Add(param, () => ParameterUpDown.Enabled);
                         }
                     })();
 
@@ -294,7 +376,6 @@ namespace BCC.Core.Geometry
                             AutoSize = true,
                             AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink,
                             ColumnCount = 2,
-                            Name = "OutputTableLayout",
                             RowCount = 0,
                             TabIndex = i++,
                             CellBorderStyle = TableLayoutPanelCellBorderStyle.Single
@@ -325,6 +406,19 @@ namespace BCC.Core.Geometry
                             OutputTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
                             OutputTableLayout.Controls.Add(ParameterNameLabel, 0, currentRow);
                             OutputTableLayout.Controls.Add(ParameterValueLabel, 1, currentRow++);
+                            BubbleCalls.Add(param, message =>
+                            {
+                                if (message is null)
+                                {
+                                    ParameterValueLabel.BackColor = SystemColors.Control;
+                                    toolTip.SetToolTip(ParameterValueLabel, "");
+                                }
+                                else
+                                {
+                                    ParameterValueLabel.BackColor = Color.Red;
+                                    toolTip.SetToolTip(ParameterValueLabel, message);
+                                }
+                            });
                         }
                         OutputTableLayout.Size = new System.Drawing.Size(ParamBoxWidth(), OutputTableLayout.RowCount * 30);
                         parameterControls.Add(OutputTableLayout);
@@ -379,8 +473,6 @@ namespace BCC.Core.Geometry
             }
         }
 
-        // Requirements checkers with actions
-        protected abstract bool IsNonNegativeValue(CycloParams param, double value);
         protected abstract bool IsCliquePossible(List<CycloParams> clique);
         protected abstract bool IsCurvatureRequirementMet(Dictionary<CycloParams, double> vals);
         protected abstract bool IsToothCuttingRequirementMet(Dictionary<CycloParams, double> vals);
@@ -389,56 +481,80 @@ namespace BCC.Core.Geometry
         // Overall requirements checker
         protected bool AreRequirementsMet(Dictionary<CycloParams, double> vals)
         {
-            var ret = true;
-            foreach(var val in vals)
+            foreach(var call in BubbleCalls)
             {
-                ret = true && IsNonNegativeValue(val.Key, val.Value);
+                call.Value(null);
             }
-            ret = true && IsCliquePossible(vals.Keys.Intersect(OptionalParams()).ToList());
-            ret = true && IsCurvatureRequirementMet(vals);
-            ret = true && IsToothCuttingRequirementMet(vals);
-            ret = true && IsNeighbourhoodRequirementMet(vals);
+            var ret = true;
+            if (!new Func<bool>(() =>
+             {
+                 return true;
+             })()) ret = false;
+            ret = ret && IsCurvatureRequirementMet(vals);
+            ret = ret && IsToothCuttingRequirementMet(vals);
+            ret = ret && IsNeighbourhoodRequirementMet(vals);
             return ret;
         }
-
-        // Name calls for parameters
-        public Func<string> CallName(CycloParams param)
-        {
-            switch (param)
-            {
-                case CycloParams.Z:
-                    return () => Vocabulary.ParameterLabels.Geometry.TeethQuantity();
-                case CycloParams.G:
-                    return () => Vocabulary.ParameterLabels.Geometry.RollDiameter();
-                case CycloParams.DA:
-                    return () => Vocabulary.ParameterLabels.Geometry.MajorDiameter();
-                case CycloParams.DF:
-                    return () => Vocabulary.ParameterLabels.Geometry.RootDiameter();
-                case CycloParams.E:
-                    return () => Vocabulary.ParameterLabels.Geometry.Eccentricity();
-                case CycloParams.H:
-                    return () => Vocabulary.ParameterLabels.Geometry.ToothHeight();
-                case CycloParams.DG:
-                    return () => Vocabulary.ParameterLabels.Geometry.RollSpacingDiameter();
-                case CycloParams.Λ:
-                    return () => Vocabulary.ParameterLabels.Geometry.ToothHeightFactor();
-                case CycloParams.DW:
-                    return () => Vocabulary.ParameterLabels.Geometry.PinSpacingDiameter();
-                case CycloParams.Ρ:
-                    return () => Vocabulary.ParameterLabels.Geometry.RollingCircleDiameter();
-                case CycloParams.DB:
-                    return () => Vocabulary.ParameterLabels.Geometry.BaseDiameter();
-                case CycloParams.EPI:
-                    return () => Vocabulary.ParameterLabels.Geometry.ProfileType();
-                default:
-                    return () => Vocabulary.NotImplementedYet();
-            }
-        }
-
+        
         protected abstract Dictionary<CycloParams, Func<string>> NameCallGenerators();
 
-        public abstract void Compute();
+        protected abstract void Compute();
+
+        public void Act()
+        {
+            List<CycloParams> available = new List<CycloParams>();
+            foreach(var param in OptionalParams())
+            {
+                if (view.IsAvailable(param)) available.Add(param);
+            }
+            if (new Func<bool>(() =>
+             {
+                 var found = false;
+                 foreach (var p_clique in PossibleCliques())
+                 {
+                     var fits = true;
+                     var temp = new List<CycloParams>(available);
+                     foreach (var p in p_clique)
+                     {
+                         if (temp.Contains(p))
+                         {
+                             temp.Remove(p);
+                         }
+                         else fits = false;
+                     }
+                     if (fits) found = true && temp.Count == 0;
+                 }
+                 if (found) return true;
+                 else
+                 {
+                     foreach (var param in OptionalParams())
+                     {
+                         BubbleCalls[param](new Func<string>(() =>
+                         {
+                             string message = Vocabulary.BubbleMessages.Geometry.TheCliqueIsImproper() +
+                             '\n' + Vocabulary.BubbleMessages.Geometry.PossibleCliquesAre() + ":\n";
+                             foreach (var p_clique in PossibleCliques())
+                             {
+                                 message += '{';
+                                 foreach (var p in p_clique)
+                                 {
+                                     message += ' ' + Calls.CallName(p)() + ',';
+                                 }
+                                 message.Remove(message.LastIndexOf(','));
+                                 message += "},\n";
+                             }
+                             message.Remove(message.LastIndexOf(','));
+                             return message;
+                         })());
+                     }
+                     return false;
+                 }
+             })()) Compute();
+        }
 
         protected abstract Func<double, PointF> GetCurve(Dictionary<CycloParams, double> data);
+
+        protected abstract Dictionary<CycloParams, double> ExtractData(Dictionary<CycloParams, object> data);
+        protected abstract Dictionary<CycloParams, object> ExtractResults();
     }
 }

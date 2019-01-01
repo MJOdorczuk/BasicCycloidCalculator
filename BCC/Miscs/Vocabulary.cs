@@ -29,6 +29,11 @@ namespace BCC.Miscs
         }
         public static Language GetLanguage() => Vocabulary.language;
 
+        internal static string NotImplementedYet()
+        {
+            return NOT_IMPLEMENTED_MESSAGE;
+        }
+
         public struct TabPagesNames
         {
             public static string Geometry()
@@ -56,7 +61,7 @@ namespace BCC.Miscs
         }
         public struct ParameterLabels
         {
-            public static class Geometry
+            public struct Geometry
             {
                 public static string ProfileType()
                 {
@@ -102,14 +107,14 @@ namespace BCC.Miscs
                     }
                     return NOT_IMPLEMENTED_MESSAGE;
                 }
-                public static string RollDiameter()
+                public static string RollRadius()
                 {
                     switch (language)
                     {
                         case Language.POLISH:
-                            return "Średnica rolki";
+                            return "Promień rolki";
                         case Language.ENGLISH:
-                            return "Roll diameter";
+                            return "Roll radius";
                     }
                     return NOT_IMPLEMENTED_MESSAGE;
                 }
@@ -214,11 +219,34 @@ namespace BCC.Miscs
                 }
             }
         }
-
-
-        internal static string NotImplementedYet()
+        public struct BubbleMessages
         {
-            return NOT_IMPLEMENTED_MESSAGE;
+            public struct Geometry
+            {
+                public static string TheCliqueIsImproper()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Ta klika jest niepoprawna";
+                        case Language.ENGLISH:
+                            return "The clique is improper";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+
+                internal static string PossibleCliquesAre()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Możliwymi klikami są";
+                        case Language.ENGLISH:
+                            return "Possible cliques are:";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+            }
         }
     }
 }
