@@ -25,18 +25,18 @@ namespace BCC.Core.Geometry
         public void Display() => render();
         public void Reset() => render = () => 
         {
-            graphics.FillRectangle(new SolidBrush(Color.White), 0, 0, 
+            graphics.FillRectangle(new SolidBrush(Color.Black), 0, 0, 
                 graphics.ClipBounds.Width, graphics.ClipBounds.Height);
         };
 
         public abstract void AddCentralCurve(Func<double, PointF> curve, int width, int height, int resolution = DEFAULT_RESOLUTION);
     }
 
-    class GeometryRenderer : Renderer
+    class CycloidGeometryRenderer : Renderer
     {
         public static class StaticFields
         {
-            public static readonly Pen widePen = new Pen(Brushes.Black)
+            public static readonly Pen widePen = new Pen(Brushes.White)
             {
                 Width = 2.0F,
                 LineJoin = LineJoin.Bevel
@@ -50,7 +50,7 @@ namespace BCC.Core.Geometry
         }
         
 
-        public GeometryRenderer(Graphics graphics) : base(graphics)
+        public CycloidGeometryRenderer(Graphics graphics) : base(graphics)
         {
         }
         public override void AddCentralCurve(Func<double,PointF> curve, int width, int height, int resolution = DEFAULT_RESOLUTION)

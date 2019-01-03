@@ -11,7 +11,8 @@ namespace BCC.Core.Geometry
     // Only predefined methods
     class SimpleGeometryModel : GeometryModel
     {
-        private static class StaticFields
+
+        private static new class StaticFields
         {
             public static readonly Dictionary<CycloParams, Func<string>> nameCallGenerators = new Dictionary<CycloParams, Func<string>>()
             {
@@ -118,12 +119,6 @@ namespace BCC.Core.Geometry
             }
         }
 
-        protected override bool IsCliquePossible(List<CycloParams> clique)
-        {
-            if (CycloidGeometry.AllIsSet) return true;
-            var possibleCompletions = PossibleCliques(clique);
-            return false;
-        }
         protected override bool IsCurvatureRequirementMet(Dictionary<CycloParams, double> vals)
         {
             if (CycloidGeometry.CurveReq)
@@ -185,16 +180,6 @@ namespace BCC.Core.Geometry
             return StaticFields.possibleCliques;
         }
 
-        protected override void Compute()
-        {
-            var doubleData = ExtractData(DownLoadData());
-            if (AreRequirementsMet(doubleData))
-            {
-                UpLoadData(ExtractResults());
-                view.SetCurve(GetCurve(doubleData));
-            }
-        }
-
         protected override Dictionary<CycloParams, Func<string>> NameCallGenerators()
         {
             return StaticFields.nameCallGenerators;
@@ -218,56 +203,15 @@ namespace BCC.Core.Geometry
                 return new Func<double,PointF>(t => new PointF(X(t), Y(t)));
             }
         }
-        protected override Dictionary<CycloParams, double> ExtractData(Dictionary<CycloParams, object> data)
+        protected override Dictionary<CycloParams, double> ExtractData(Dictionary<CycloParams, double> data)
         {
             CycloidGeometry.Reset();
             foreach (var val in data)
             {
-                switch (val.Value)
-                {
-                    case int i:
-                        {
-                            CycloidGeometry.Set(val.Key, (double)i);
-                            break;
-                        }
-                    case bool b:
-                        {
-                            CycloidGeometry.Set(val.Key, b ? CycloidGeometry.TRUE : CycloidGeometry.FALSE);
-                            break;
-                        }
-                    case double d:
-                        {
-                            CycloidGeometry.Set(val.Key, d);
-                            break;
-                        }
-                    case decimal d:
-                        {
-                            CycloidGeometry.Set(val.Key, (double)d);
-                            break;
-                        }
-                    default:
-                        {
-                            CycloidGeometry.Set(val.Key, (double)val.Value);
-                            break;
-                        }
-                }
+                CycloidGeometry.Set(val.Key, val.Value);
             }
             CycloidGeometry.Calculate();
             return CycloidGeometry.GetAll();
-        }
-
-        protected override Dictionary<CycloParams, object> ExtractResults()
-        {
-            var toUpload = new Dictionary<CycloParams, object>();
-            foreach (var param in OptionalParams())
-            {
-                toUpload.Add(param, CycloidGeometry.Get(param));
-            }
-            foreach (var param in OutputParams())
-            {
-                toUpload.Add(param, CycloidGeometry.Get(param));
-            }
-            return toUpload;
         }
     }
 }

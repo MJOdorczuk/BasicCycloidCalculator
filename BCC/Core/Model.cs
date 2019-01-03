@@ -2,6 +2,8 @@
 using BCC.Interface_View.StandardInterface;
 using BCC.Interface_View.StandardInterface.Geometry;
 using BCC.Miscs;
+using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -13,13 +15,9 @@ namespace BCC.Core
         private static StandardForm main;
         private static TabControl workSpace;
         private static GeometryModel geometryModel = new SimpleGeometryModel();
-        private static TabPage geometryPage = new TabPage();
-        private static TabPage loadPage = new TabPage();
 
         public static Form Initialize()
         {
-            Vocabulary.AddNameCall(() => geometryPage.Text = Vocabulary.TabPagesNames.Geometry());
-            Vocabulary.AddNameCall(() => loadPage.Text = Vocabulary.TabPagesNames.Load());
             Model.main = new StandardForm()
             {
                 Width = 1280,
@@ -34,10 +32,17 @@ namespace BCC.Core
                 ShowIcon = false,
             };
             Model.workSpace = Model.main.WorkSpace;
-            var geometryMenu = geometryModel.GetMenu();
-            workSpace.TabPages.Add(geometryPage);
-            workSpace.TabPages.Add(loadPage);
-            geometryPage.Controls.Add(geometryMenu);
+            void DeployMenus(Dictionary<UserControl,Func<string>> menusPairs)
+            {
+                foreach(var pair in menusPairs)
+                {
+                    var page = new TabPage();
+                    workSpace.TabPages.Add(page);
+                    Vocabulary.AddNameCall(() => page.Text = pair.Value());
+                    page.Controls.Add(pair.Key);
+                }
+            }
+            DeployMenus(geometryModel.GetMenus());
             Vocabulary.UpdateAllNames();
             return main;
         }

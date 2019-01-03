@@ -27,16 +27,6 @@ namespace BCC.Core.Geometry
         EPI
     }
 
-    public enum ErrorTypes
-    {
-        OUT_OF_RANGE,
-        NO_POSSIBLE_CLIQUE,
-        INCOMPLETE_CLIQUE,
-        CURVATURE_REQUIREMENT,
-        TOOTH_CUTTING_REQUIREMENT,
-        NEIGHBOURHOOD_REQUIREMENT
-    }
-
     abstract class GeometryModel
     {
         // The view and the control for geometry computation
@@ -44,13 +34,15 @@ namespace BCC.Core.Geometry
 
         protected readonly Dictionary<CycloParams, Action<string>> BubbleCalls = new Dictionary<CycloParams, Action<string>>();
 
-        private static class StaticFields
+        public static class StaticFields
         {
             public static readonly int PARAM_BOX_WIDTH = 360;
             public static readonly int VALUE_PRECISION = 3;
+            public static readonly double TRUE = 1.0, FALSE = 2.0;
+            public static readonly double NULL = double.NegativeInfinity;
         }
 
-        private static class Calls
+        private static class NameCalls
         {
             // Name calls for parameters
             public static Func<string> CallName(CycloParams param)
@@ -113,7 +105,7 @@ namespace BCC.Core.Geometry
         }
 
         // Generating and binding a view with the model
-        public virtual GeometryMenu GetMenu()
+        public Dictionary<UserControl, Func<string>> GetMenus()
         {
             GeometryModel parentModel = this;
             if (view is null)
@@ -122,8 +114,8 @@ namespace BCC.Core.Geometry
                 var toolTip = new ToolTip();
 
                 int ParamBoxWidth() => StaticFields.PARAM_BOX_WIDTH - 20;
-                Dictionary<CycloParams, Func<object>> getterCalls = new Dictionary<CycloParams, Func<object>>();
-                Dictionary<CycloParams, Action<object>> setterCalls = new Dictionary<CycloParams, Action<object>>();
+                Dictionary<CycloParams, Func<double>> getterCalls = new Dictionary<CycloParams, Func<double>>();
+                Dictionary<CycloParams, Action<double>> setterCalls = new Dictionary<CycloParams, Action<double>>();
                 Dictionary<CycloParams, Func<bool>> availabilityCalls = new Dictionary<CycloParams, Func<bool>>();
 
                 var nameCallGenerators = NameCallGenerators();
@@ -173,7 +165,7 @@ namespace BCC.Core.Geometry
                         Vocabulary.ParameterLabels.Geometry.Epicycloid(),
                         Vocabulary.ParameterLabels.Geometry.Hipocycloid()});
                         }));
-                        getterCalls.Add(CycloParams.EPI, () => ProfileTypeComboBox.SelectedIndex < 1);
+                        getterCalls.Add(CycloParams.EPI, () => ProfileTypeComboBox.SelectedIndex < 1 ? StaticFields.TRUE : StaticFields.FALSE);
                         BubbleCalls.Add(CycloParams.EPI, message => 
                         {
                             if(message is null)
@@ -225,7 +217,7 @@ namespace BCC.Core.Geometry
                             ParameterGroupBox.Controls.Add(ParameterUpDown);
                             parameterControls.Add(ParameterGroupBox);
                             ParameterUpDown.ValueChanged += (sender, e) => Act();
-                            getterCalls.Add(param, () => ParameterUpDown.Value);
+                            getterCalls.Add(param, () => (double)ParameterUpDown.Value);
                             BubbleCalls.Add(param, message =>
                             {
                                 if (message is null)
@@ -276,7 +268,7 @@ namespace BCC.Core.Geometry
                             ParameterGroupBox.Controls.Add(ParameterUpDown);
                             parameterControls.Add(ParameterGroupBox);
                             ParameterUpDown.ValueChanged += (sender, e) => Act();
-                            getterCalls.Add(param, () => ParameterUpDown.Value);
+                            getterCalls.Add(param, () => (double)ParameterUpDown.Value);
                             BubbleCalls.Add(param, message =>
                             {
                                 if (message is null)
@@ -328,7 +320,7 @@ namespace BCC.Core.Geometry
                             ParameterGroupBox.Controls.Add(ParameterUpDown);
                             parameterControls.Add(ParameterGroupBox);
                             ParameterUpDown.ValueChanged += (sender, e) => Act();
-                            getterCalls.Add(param, () => ParameterUpDown.Value);
+                            getterCalls.Add(param, () => (double)ParameterUpDown.Value);
                             BubbleCalls.Add(param, message =>
                             {
                                 if (message is null)
@@ -441,13 +433,16 @@ namespace BCC.Core.Geometry
                     Dock = DockStyle.Fill
                 };
             }
-            return view;
+            return new Dictionary<UserControl, Func<string>>()
+            {
+                {view, Vocabulary.TabPagesNames.Geometry}
+            };
         }
 
         // Transferring data to and from the view
-        public Dictionary<CycloParams, object> DownLoadData()
+        public Dictionary<CycloParams, double> DownLoadData()
         {
-            var ret = new Dictionary<CycloParams, object>
+            var ret = new Dictionary<CycloParams, double>
             {
                 { CycloParams.EPI, view.Get(CycloParams.EPI) }
             };
@@ -465,7 +460,7 @@ namespace BCC.Core.Geometry
             }
             return ret;
         }
-        public void UpLoadData(Dictionary<CycloParams, object> data)
+        public void UpLoadData(Dictionary<CycloParams, double> data)
         {
             foreach(var param in data)
             {
@@ -473,7 +468,6 @@ namespace BCC.Core.Geometry
             }
         }
 
-        protected abstract bool IsCliquePossible(List<CycloParams> clique);
         protected abstract bool IsCurvatureRequirementMet(Dictionary<CycloParams, double> vals);
         protected abstract bool IsToothCuttingRequirementMet(Dictionary<CycloParams, double> vals);
         protected abstract bool IsNeighbourhoodRequirementMet(Dictionary<CycloParams, double> vals);
@@ -486,10 +480,6 @@ namespace BCC.Core.Geometry
                 call.Value(null);
             }
             var ret = true;
-            if (!new Func<bool>(() =>
-             {
-                 return true;
-             })()) ret = false;
             ret = ret && IsCurvatureRequirementMet(vals);
             ret = ret && IsToothCuttingRequirementMet(vals);
             ret = ret && IsNeighbourhoodRequirementMet(vals);
@@ -497,8 +487,6 @@ namespace BCC.Core.Geometry
         }
         
         protected abstract Dictionary<CycloParams, Func<string>> NameCallGenerators();
-
-        protected abstract void Compute();
 
         public void Act()
         {
@@ -538,7 +526,7 @@ namespace BCC.Core.Geometry
                                  message += '{';
                                  foreach (var p in p_clique)
                                  {
-                                     message += ' ' + Calls.CallName(p)() + ',';
+                                     message += ' ' + NameCalls.CallName(p)() + ',';
                                  }
                                  message.Remove(message.LastIndexOf(','));
                                  message += "},\n";
@@ -549,12 +537,19 @@ namespace BCC.Core.Geometry
                      }
                      return false;
                  }
-             })()) Compute();
+             })())
+            {
+                var doubleData = ExtractData(DownLoadData());
+                if (AreRequirementsMet(doubleData))
+                {
+                    UpLoadData(doubleData);
+                    view.SetCurve(GetCurve(doubleData));
+                }
+            }
         }
 
         protected abstract Func<double, PointF> GetCurve(Dictionary<CycloParams, double> data);
 
-        protected abstract Dictionary<CycloParams, double> ExtractData(Dictionary<CycloParams, object> data);
-        protected abstract Dictionary<CycloParams, object> ExtractResults();
+        protected abstract Dictionary<CycloParams, double> ExtractData(Dictionary<CycloParams, double> data);
     }
 }
