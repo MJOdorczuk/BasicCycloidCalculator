@@ -11,7 +11,7 @@ namespace BCC.Core.Geometry
 {
     abstract class Renderer
     {
-        protected const int DEFAULT_RESOLUTION = 10000;
+        protected const int DEFAULT_RESOLUTION = 5000;
         private Action render;
         protected readonly Graphics graphics;
 
@@ -41,12 +41,12 @@ namespace BCC.Core.Geometry
                 Width = 2.0F,
                 LineJoin = LineJoin.Bevel
             };
-            private const int PRIMES_BOUND = 14;
+            private const int PRIMES_BOUND = 30;
             public static readonly int[] PRIMES =
                 (from i in Enumerable.Range(2, PRIMES_BOUND).AsParallel()
                  where Enumerable.Range(2, (int)Math.Sqrt(i)).All(j => i % j != 0)
                  select i).ToArray();
-            public const double BOUND_MARGIN = 1.1;
+            public const double BOUND_MARGIN = 1.3;
         }
         
 
@@ -55,7 +55,8 @@ namespace BCC.Core.Geometry
         }
         public override void AddCentralCurve(Func<double,PointF> curve, int width, int height, int resolution = DEFAULT_RESOLUTION)
         {
-            Render += () =>
+            var former = Render;
+            Render = () =>
             {
                 double distance(PointF p) => Math.Sqrt(p.X * p.X + p.Y * p.Y);
                 var bound = distance(curve(0)) * StaticFields.BOUND_MARGIN;
@@ -80,6 +81,7 @@ namespace BCC.Core.Geometry
                     var y = (float)(y0 + curve(t).Y * factor);
                     curvePoints.Add(new PointF(x, y));
                 }
+                former();
                 graphics.DrawClosedCurve(StaticFields.widePen, curvePoints.ToArray());
             };
             

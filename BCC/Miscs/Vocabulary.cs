@@ -218,6 +218,236 @@ namespace BCC.Miscs
                     return NOT_IMPLEMENTED_MESSAGE;
                 }
             }
+            public struct Dimensioning
+            {
+                internal static string Brass()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Mosiądz";
+                        case Language.ENGLISH:
+                            return "Brass";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+
+                internal static object Custom()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Niestandardowy";
+                        case Language.ENGLISH:
+                            return "Custom";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+
+                internal static string Bronze()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Brąz";
+                        case Language.ENGLISH:
+                            return "Bronze";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+
+                internal static string CastIron()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Żeliwo";
+                        case Language.ENGLISH:
+                            return "Cast Iron";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+
+                internal static string SleeveMaterial()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Materiał tulei";
+                        case Language.ENGLISH:
+                            return "Sleeve material";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+
+                internal static string GearMaterial()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Materiał koła";
+                        case Language.ENGLISH:
+                            return "Gear Material";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+
+                internal static string PoissonsRatio()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Współczynnik Poissona";
+                        case Language.ENGLISH:
+                            return "Poisson\'s Ratio";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+
+                internal static string Steel()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Stal";
+                        case Language.ENGLISH:
+                            return "Steel";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+
+                internal static string YoungsModulus()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Moduł Younga";
+                        case Language.ENGLISH:
+                            return "Young\'s Modulus";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+
+                internal static string FaceWidth()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Szerokość Koła";
+                        case Language.ENGLISH:
+                            return "Face Width";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+
+                internal static string RollQuantity()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Liczba Sworzni";
+                        case Language.ENGLISH:
+                            return "Roll Quantity";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+
+                internal static string HoleRadius()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Promień Otworu";
+                        case Language.ENGLISH:
+                            return "Hole Radius";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+
+                internal static string SleeveRadius()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Promień Tulei";
+                        case Language.ENGLISH:
+                            return "Sleeve Radius";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+
+                internal static string RollSpacingRadius()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Promień Rozmieszczenia Sworzni";
+                        case Language.ENGLISH:
+                            return "Roll Spacing Diameter";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+
+                internal static string EngineeringTolerances()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Tolerancje wykonania";
+                        case Language.ENGLISH:
+                            return "Engineering Tolerances";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+
+                internal static string HoleSpacingRadius()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Promień Rozmieszczenia Otworów";
+                        case Language.ENGLISH:
+                            return "Hole Spacing Radius";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+
+                internal static string SleeveSpacingRadius()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Promień Rozmieszczenia Tulei";
+                        case Language.ENGLISH:
+                            return "Sleeve Spacing Radius";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+
+                internal static string HoleSpacingAngle()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Kąt Rozmieszczenia Otworów";
+                        case Language.ENGLISH:
+                            return "Hole Spacing Angle";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+
+                internal static string SleeveSpacingAngle()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Kąt Rozmieszczenia Tulei";
+                        case Language.ENGLISH:
+                            return "Sleeve Spacing Angle";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+            }
         }
         public struct BubbleMessages
         {

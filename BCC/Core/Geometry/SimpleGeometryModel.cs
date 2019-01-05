@@ -14,7 +14,7 @@ namespace BCC.Core.Geometry
 
         private static new class StaticFields
         {
-            public static readonly Dictionary<CycloParams, Func<string>> nameCallGenerators = new Dictionary<CycloParams, Func<string>>()
+            public static readonly Dictionary<Enum, Func<string>> nameCallGenerators = new Dictionary<Enum, Func<string>>()
             {
                 {CycloParams.DA, Vocabulary.ParameterLabels.Geometry.MajorDiameter },
                 {CycloParams.DB, Vocabulary.ParameterLabels.Geometry.BaseDiameter },
@@ -180,7 +180,7 @@ namespace BCC.Core.Geometry
             return StaticFields.possibleCliques;
         }
 
-        protected override Dictionary<CycloParams, Func<string>> NameCallGenerators()
+        protected override Dictionary<Enum, Func<string>> NameCallGenerators()
         {
             return StaticFields.nameCallGenerators;
         }

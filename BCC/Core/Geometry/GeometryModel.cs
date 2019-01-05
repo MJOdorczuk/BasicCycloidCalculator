@@ -27,12 +27,10 @@ namespace BCC.Core.Geometry
         EPI
     }
 
-    abstract class GeometryModel
+    abstract class GeometryModel : Model
     {
         // The view and the control for geometry computation
         protected GeometryMenu view = null;
-
-        protected readonly Dictionary<CycloParams, Action<string>> BubbleCalls = new Dictionary<CycloParams, Action<string>>();
 
         public static class StaticFields
         {
@@ -40,45 +38,6 @@ namespace BCC.Core.Geometry
             public static readonly int VALUE_PRECISION = 3;
             public static readonly double TRUE = 1.0, FALSE = 2.0;
             public static readonly double NULL = double.NegativeInfinity;
-        }
-
-        private static class NameCalls
-        {
-            // Name calls for parameters
-            public static Func<string> CallName(CycloParams param)
-            {
-                switch (param)
-                {
-                    case CycloParams.Z:
-                        return () => Vocabulary.ParameterLabels.Geometry.TeethQuantity();
-                    case CycloParams.G:
-                        return () => Vocabulary.ParameterLabels.Geometry.RollRadius();
-                    case CycloParams.DA:
-                        return () => Vocabulary.ParameterLabels.Geometry.MajorDiameter();
-                    case CycloParams.DF:
-                        return () => Vocabulary.ParameterLabels.Geometry.RootDiameter();
-                    case CycloParams.E:
-                        return () => Vocabulary.ParameterLabels.Geometry.Eccentricity();
-                    case CycloParams.H:
-                        return () => Vocabulary.ParameterLabels.Geometry.ToothHeight();
-                    case CycloParams.DG:
-                        return () => Vocabulary.ParameterLabels.Geometry.RollSpacingDiameter();
-                    case CycloParams.Λ:
-                        return () => Vocabulary.ParameterLabels.Geometry.ToothHeightFactor();
-                    case CycloParams.DW:
-                        return () => Vocabulary.ParameterLabels.Geometry.PinSpacingDiameter();
-                    case CycloParams.Ρ:
-                        return () => Vocabulary.ParameterLabels.Geometry.RollingCircleDiameter();
-                    case CycloParams.DB:
-                        return () => Vocabulary.ParameterLabels.Geometry.BaseDiameter();
-                    case CycloParams.EPI:
-                        return () => Vocabulary.ParameterLabels.Geometry.ProfileType();
-                    default:
-                        return () => Vocabulary.NotImplementedYet();
-                }
-            }
-
-
         }
 
         // Parameters lists
@@ -107,23 +66,22 @@ namespace BCC.Core.Geometry
         // Generating and binding a view with the model
         public Dictionary<UserControl, Func<string>> GetMenus()
         {
-            GeometryModel parentModel = this;
             if (view is null)
             {
                 var parameterControls = new List<Control>();
                 var toolTip = new ToolTip();
 
                 int ParamBoxWidth() => StaticFields.PARAM_BOX_WIDTH - 20;
-                Dictionary<CycloParams, Func<double>> getterCalls = new Dictionary<CycloParams, Func<double>>();
-                Dictionary<CycloParams, Action<double>> setterCalls = new Dictionary<CycloParams, Action<double>>();
-                Dictionary<CycloParams, Func<bool>> availabilityCalls = new Dictionary<CycloParams, Func<bool>>();
+                var getterCalls = new Dictionary<CycloParams, Func<double>>();
+                var setterCalls = new Dictionary<CycloParams, Action<double>>();
+                var availabilityCalls = new Dictionary<CycloParams, Func<bool>>();
 
                 var nameCallGenerators = NameCallGenerators();
 
                 // Initialization of groupBoxes
                 new Action(() => 
                 {
-                    int i = 1;
+                    var i = 1;
 
                     // Profile type group
                     new Action(() => 
@@ -160,10 +118,12 @@ namespace BCC.Core.Geometry
                         ProfileTypeGroupBox.Controls.Add(ProfileTypeComboBox);
                         parameterControls.Add(ProfileTypeGroupBox);
                         Vocabulary.AddNameCall(new Action(() => {
+                            var index = ProfileTypeComboBox.SelectedIndex;
                             ProfileTypeComboBox.Items.Clear();
                             ProfileTypeComboBox.Items.AddRange(new object[] {
                         Vocabulary.ParameterLabels.Geometry.Epicycloid(),
                         Vocabulary.ParameterLabels.Geometry.Hipocycloid()});
+                            ProfileTypeComboBox.SelectedIndex = index < 0 ? 0 : index;
                         }));
                         getterCalls.Add(CycloParams.EPI, () => ProfileTypeComboBox.SelectedIndex < 1 ? StaticFields.TRUE : StaticFields.FALSE);
                         BubbleCalls.Add(CycloParams.EPI, message => 
@@ -432,6 +392,10 @@ namespace BCC.Core.Geometry
                     AutoSize = true,
                     Dock = DockStyle.Fill
                 };
+                view.VisibleChanged += (sender, e) =>
+                {
+                    if (view.Visible) Act();
+                };
             }
             return new Dictionary<UserControl, Func<string>>()
             {
@@ -486,8 +450,6 @@ namespace BCC.Core.Geometry
             return ret;
         }
         
-        protected abstract Dictionary<CycloParams, Func<string>> NameCallGenerators();
-
         public void Act()
         {
             List<CycloParams> available = new List<CycloParams>();
@@ -526,7 +488,7 @@ namespace BCC.Core.Geometry
                                  message += '{';
                                  foreach (var p in p_clique)
                                  {
-                                     message += ' ' + NameCalls.CallName(p)() + ',';
+                                     message += ' ' + NameCallGenerators()[p]() + ',';
                                  }
                                  message.Remove(message.LastIndexOf(','));
                                  message += "},\n";

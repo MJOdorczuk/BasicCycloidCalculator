@@ -1,7 +1,9 @@
 ﻿using BCC.Core;
+using BCC.Interface_View.MetroInterface;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using System.Linq;
 
 namespace BCC
 {
@@ -13,7 +15,7 @@ namespace BCC
         [STAThread]
         static void Main()
         {
-            var form = Model.Initialize();
+            var form = Initializator.Initialize();
             Application.Run(form);
         }
     }

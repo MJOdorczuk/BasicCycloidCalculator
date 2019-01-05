@@ -45,7 +45,7 @@ namespace BCC.InterfaceFactory
                 };
                 enableBButton.Click += new EventHandler((sender, e) =>
                 {
-                    Model.Enable(menuB);
+                    Initializator.Enable(menuB);
                 });
                 var enableCButton = new Button()
                 {
@@ -59,7 +59,7 @@ namespace BCC.InterfaceFactory
                 };
                 enableCButton.Click += new EventHandler((sender, e) =>
                 {
-                    Model.Enable(menuC);
+                    Initializator.Enable(menuC);
                 });
                 var enableDButton = new Button()
                 {
@@ -73,7 +73,7 @@ namespace BCC.InterfaceFactory
                 };
                 enableDButton.Click += new EventHandler((sender, e) =>
                 {
-                    Model.Enable(menuD);
+                    Initializator.Enable(menuD);
                 });
                 var disableBButton = new Button()
                 {
@@ -87,7 +87,7 @@ namespace BCC.InterfaceFactory
                 };
                 disableBButton.Click += new EventHandler((sender, e) =>
                 {
-                    Model.Disable(menuB);
+                    Initializator.Disable(menuB);
                 });
                 var disableCButton = new Button()
                 {
@@ -101,7 +101,7 @@ namespace BCC.InterfaceFactory
                 };
                 disableCButton.Click += new EventHandler((sender, e) =>
                 {
-                    Model.Disable(menuC);
+                    Initializator.Disable(menuC);
                 });
                 var disableDButton = new Button()
                 {
@@ -115,7 +115,7 @@ namespace BCC.InterfaceFactory
                 };
                 disableDButton.Click += new EventHandler((sender, e) =>
                 {
-                    Model.Disable(menuD);
+                    Initializator.Disable(menuD);
                 });
 
                 menuA.Controls.AddRange(new Control[] { enableBButton, disableBButton });

@@ -47,6 +47,7 @@ namespace BCC.Interface_View.MetroInterface
             // metroStyleManager1
             // 
             this.metroStyleManager1.Owner = this;
+            this.metroStyleManager1.Style = MetroFramework.MetroColorStyle.Green;
             this.metroStyleManager1.Theme = MetroFramework.MetroThemeStyle.Dark;
             // 
             // MenuTabControl
@@ -171,6 +172,7 @@ namespace BCC.Interface_View.MetroInterface
             this.ClientSize = new System.Drawing.Size(943, 540);
             this.Controls.Add(this.MenuTabControl);
             this.Name = "MyMetroForm";
+            this.ShowIcon = false;
             this.Text = "CycloCalc";
             ((System.ComponentModel.ISupportInitialize)(this.metroStyleManager1)).EndInit();
             this.MenuTabControl.ResumeLayout(false);
