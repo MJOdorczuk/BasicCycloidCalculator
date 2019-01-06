@@ -1,6 +1,7 @@
 ﻿using BCC.Core.Load;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,12 +16,12 @@ namespace BCC.Interface_View.StandardInterface.Tension
             internal LoadModel model;
             internal int PARAMBOX_WIDTH;
             internal List<Control> parameterControls;
-            internal Dictionary<DimensioningParams, Func<double, double>> getterCalls;
-            internal Dictionary<DimensioningParams, Action<double, double>> setterCalls;
+            internal Dictionary<Enum, Func<int, double>> getterCalls;
+            internal Dictionary<Enum, Action<int, double>> setterCalls;
         }
         private GroupBox InputDataGroupBox;
-        private readonly Dictionary<DimensioningParams, Func<double, double>> getterCalls;
-        private readonly Dictionary<DimensioningParams, Action<double, double>> setterCalls;
+        private readonly Dictionary<Enum, Func<int, double>> getterCalls;
+        private readonly Dictionary<Enum, Action<int, double>> setterCalls;
         private FlowLayoutPanel InputDataFlowPanel;
         private readonly LoadModel model;
 
@@ -39,41 +40,41 @@ namespace BCC.Interface_View.StandardInterface.Tension
 
         private void InitializeComponent()
         {
-            this.InputDataGroupBox = new System.Windows.Forms.GroupBox();
-            this.InputDataFlowPanel = new System.Windows.Forms.FlowLayoutPanel();
-            this.InputDataGroupBox.SuspendLayout();
-            this.SuspendLayout();
+            InputDataGroupBox = new GroupBox();
+            InputDataFlowPanel = new FlowLayoutPanel();
+            InputDataGroupBox.SuspendLayout();
+            SuspendLayout();
             // 
             // InputDataGroupBox
             // 
-            this.InputDataGroupBox.Controls.Add(this.InputDataFlowPanel);
-            this.InputDataGroupBox.Dock = System.Windows.Forms.DockStyle.Left;
-            this.InputDataGroupBox.Location = new System.Drawing.Point(0, 0);
-            this.InputDataGroupBox.Name = "InputDataGroupBox";
-            this.InputDataGroupBox.Size = new System.Drawing.Size(384, 2000);
-            this.InputDataGroupBox.TabIndex = 0;
-            this.InputDataGroupBox.TabStop = false;
+            InputDataGroupBox.Controls.Add(InputDataFlowPanel);
+            InputDataGroupBox.Dock = DockStyle.Left;
+            InputDataGroupBox.Location = new Point(0, 0);
+            InputDataGroupBox.Name = "InputDataGroupBox";
+            InputDataGroupBox.Size = new Size(384, 2000);
+            InputDataGroupBox.TabIndex = 0;
+            InputDataGroupBox.TabStop = false;
             // 
             // InputDataFlowPanel
             // 
-            this.InputDataFlowPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.InputDataFlowPanel.Location = new System.Drawing.Point(3, 16);
-            this.InputDataFlowPanel.Name = "InputDataFlowPanel";
-            this.InputDataFlowPanel.Size = new System.Drawing.Size(378, 1981);
-            this.InputDataFlowPanel.TabIndex = 0;
+            InputDataFlowPanel.Dock = DockStyle.Fill;
+            InputDataFlowPanel.Location = new Point(3, 16);
+            InputDataFlowPanel.Name = "InputDataFlowPanel";
+            InputDataFlowPanel.Size = new Size(378, 1981);
+            InputDataFlowPanel.TabIndex = 0;
             // 
             // LoadMenu
             // 
-            this.Controls.Add(this.InputDataGroupBox);
-            this.Name = "LoadMenu";
-            this.Size = new System.Drawing.Size(2000, 2000);
-            this.InputDataGroupBox.ResumeLayout(false);
-            this.ResumeLayout(false);
+            Controls.Add(InputDataGroupBox);
+            Name = "LoadMenu";
+            Size = new Size(2000, 2000);
+            InputDataGroupBox.ResumeLayout(false);
+            ResumeLayout(false);
 
         }
 
-        public Func<double, double> Get(DimensioningParams param) => getterCalls[param];
-        public void Set(DimensioningParams param, double val, double index)
+        public Func<int, double> Get(Enum param) => getterCalls[param];
+        public void Set(Enum param, double val, int index)
         {
             if (setterCalls.ContainsKey(param)) setterCalls[param](index, val);
         }

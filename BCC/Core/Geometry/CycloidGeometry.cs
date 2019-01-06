@@ -26,17 +26,17 @@ namespace BCC.Core.Geometry
         private static double lambda, dw, ro, db; // output
         private static int z;
         private static bool epi;
-        public static readonly List<List<CycloParams>> PossibleCliques = new List<List<CycloParams>>()
+        public static readonly List<List<Enum>> PossibleCliques = new List<List<Enum>>()
         {
-            new List<CycloParams>(){CycloParams.DA, CycloParams.DF },
-            new List<CycloParams>(){CycloParams.DA, CycloParams.DG },
-            new List<CycloParams>(){CycloParams.DA, CycloParams.E },
-            new List<CycloParams>(){CycloParams.DA, CycloParams.H },
-            new List<CycloParams>(){CycloParams.DF, CycloParams.DG },
-            new List<CycloParams>(){CycloParams.DF, CycloParams.E },
-            new List<CycloParams>(){CycloParams.DF, CycloParams.H },
-            new List<CycloParams>(){CycloParams.DG, CycloParams.E },
-            new List<CycloParams>(){CycloParams.DG, CycloParams.H }
+            new List<Enum>(){CycloParams.DA, CycloParams.DF },
+            new List<Enum>(){CycloParams.DA, CycloParams.DG },
+            new List<Enum>(){CycloParams.DA, CycloParams.E },
+            new List<Enum>(){CycloParams.DA, CycloParams.H },
+            new List<Enum>(){CycloParams.DF, CycloParams.DG },
+            new List<Enum>(){CycloParams.DF, CycloParams.E },
+            new List<Enum>(){CycloParams.DF, CycloParams.H },
+            new List<Enum>(){CycloParams.DG, CycloParams.E },
+            new List<Enum>(){CycloParams.DG, CycloParams.H }
         };
 
         static CycloidGeometry()
@@ -121,7 +121,7 @@ namespace BCC.Core.Geometry
         public static bool NeighReq =>
             e > g * lambda / ((z + (epi ? 1 : 0)) * Math.Sin(Math.PI / (z + (epi ? 1 : -1))));
 
-        public static void Set(CycloParams param, double val)
+        public static void Set(Enum param, double val)
         {
             switch (param)
             {
@@ -164,7 +164,7 @@ namespace BCC.Core.Geometry
             }
         }
 
-        public static double Get(CycloParams param)
+        public static double Get(Enum param)
         {
             switch (param)
             {
@@ -196,11 +196,11 @@ namespace BCC.Core.Geometry
             return 0;
         }
 
-        public static Dictionary<CycloParams, double> GetAll()
+        public static Dictionary<Enum, double> GetAll()
         {
-            var ret = new Dictionary<CycloParams, double>();
-            var enumValues = Enum.GetValues(typeof(CycloParams));
-            foreach (CycloParams param in Enum.GetValues(typeof(CycloParams)))
+            var ret = new Dictionary<Enum, double>();
+            var enumValues = Enum.GetValues(typeof(Enum));
+            foreach (Enum param in Enum.GetValues(typeof(CycloParams)))
             {
                 var val = Get(param);
                 if (val > 0) ret.Add(param, val);

@@ -11,21 +11,7 @@ using System.Windows.Forms;
 
 namespace BCC.Core.Geometry
 {
-    public enum CycloParams
-    {
-        Z,
-        G,
-        DA,
-        DF,
-        E,
-        H,
-        DG,
-        Λ,
-        DW,
-        Ρ,
-        DB,
-        EPI
-    }
+    
 
     abstract class GeometryModel : Model
     {
@@ -37,23 +23,20 @@ namespace BCC.Core.Geometry
             public static readonly int PARAM_BOX_WIDTH = 360;
             public static readonly int VALUE_PRECISION = 3;
             public static readonly double TRUE = 1.0, FALSE = 2.0;
-            public static readonly double NULL = double.NegativeInfinity;
         }
 
         // Parameters lists
-        protected abstract List<CycloParams> OptionalParams();
-        protected abstract List<CycloParams> ObligatoryIntParams();
-        protected abstract List<CycloParams> ObligatoryFloatParams();
-        protected abstract List<CycloParams> OutputParams();
-        protected abstract List<List<CycloParams>> PossibleCliques();
+        protected abstract List<Enum> OptionalParams();
+        protected abstract List<Enum> OutputParams();
+        protected abstract List<List<Enum>> PossibleCliques();
 
-        protected List<List<CycloParams>> PossibleCliques(List<CycloParams> clique)
+        protected List<List<Enum>> PossibleCliques(List<Enum> clique)
         {
             if (clique.Count() == 0) return PossibleCliques();
-            var possibleCompletions = new List<List<CycloParams>>();
+            var possibleCompletions = new List<List<Enum>>();
             foreach (var v in PossibleCliques())
             {
-                possibleCompletions.Add(new List<CycloParams>(v));
+                possibleCompletions.Add(new List<Enum>(v));
             }
             foreach (var param in clique)
             {
@@ -72,9 +55,9 @@ namespace BCC.Core.Geometry
                 var toolTip = new ToolTip();
 
                 int ParamBoxWidth() => StaticFields.PARAM_BOX_WIDTH - 20;
-                var getterCalls = new Dictionary<CycloParams, Func<double>>();
-                var setterCalls = new Dictionary<CycloParams, Action<double>>();
-                var availabilityCalls = new Dictionary<CycloParams, Func<bool>>();
+                var getterCalls = new Dictionary<Enum, Func<double>>();
+                var setterCalls = new Dictionary<Enum, Action<double>>();
+                var availabilityCalls = new Dictionary<Enum, Func<bool>>();
 
                 var nameCallGenerators = NameCallGenerators();
 
@@ -404,9 +387,9 @@ namespace BCC.Core.Geometry
         }
 
         // Transferring data to and from the view
-        public Dictionary<CycloParams, double> DownLoadData()
+        public Dictionary<Enum, double> DownLoadData()
         {
-            var ret = new Dictionary<CycloParams, double>
+            var ret = new Dictionary<Enum, double>
             {
                 { CycloParams.EPI, view.Get(CycloParams.EPI) }
             };
@@ -424,7 +407,7 @@ namespace BCC.Core.Geometry
             }
             return ret;
         }
-        public void UpLoadData(Dictionary<CycloParams, double> data)
+        public void UpLoadData(Dictionary<Enum, double> data)
         {
             foreach(var param in data)
             {
@@ -432,12 +415,12 @@ namespace BCC.Core.Geometry
             }
         }
 
-        protected abstract bool IsCurvatureRequirementMet(Dictionary<CycloParams, double> vals);
-        protected abstract bool IsToothCuttingRequirementMet(Dictionary<CycloParams, double> vals);
-        protected abstract bool IsNeighbourhoodRequirementMet(Dictionary<CycloParams, double> vals);
+        protected abstract bool IsCurvatureRequirementMet(Dictionary<Enum, double> vals);
+        protected abstract bool IsToothCuttingRequirementMet(Dictionary<Enum, double> vals);
+        protected abstract bool IsNeighbourhoodRequirementMet(Dictionary<Enum, double> vals);
 
         // Overall requirements checker
-        protected bool AreRequirementsMet(Dictionary<CycloParams, double> vals)
+        protected bool AreRequirementsMet(Dictionary<Enum, double> vals)
         {
             foreach(var call in BubbleCalls)
             {
@@ -452,7 +435,7 @@ namespace BCC.Core.Geometry
         
         public void Act()
         {
-            List<CycloParams> available = new List<CycloParams>();
+            var available = new List<Enum>();
             foreach(var param in OptionalParams())
             {
                 if (view.IsAvailable(param)) available.Add(param);
@@ -463,7 +446,7 @@ namespace BCC.Core.Geometry
                  foreach (var p_clique in PossibleCliques())
                  {
                      var fits = true;
-                     var temp = new List<CycloParams>(available);
+                     var temp = new List<Enum>(available);
                      foreach (var p in p_clique)
                      {
                          if (temp.Contains(p))
@@ -510,8 +493,8 @@ namespace BCC.Core.Geometry
             }
         }
 
-        protected abstract Func<double, PointF> GetCurve(Dictionary<CycloParams, double> data);
+        protected abstract Func<double, PointF> GetCurve(Dictionary<Enum, double> data);
 
-        protected abstract Dictionary<CycloParams, double> ExtractData(Dictionary<CycloParams, double> data);
+        protected abstract Dictionary<Enum, double> ExtractData(Dictionary<Enum, double> data);
     }
 }

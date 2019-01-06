@@ -87,6 +87,7 @@
     <Compile Include="Core\Computation\Nodes\UniNode.cs" />
     <Compile Include="Core\Computation\Nodes\UniNodes\Negation.cs" />
     <Compile Include="Core\Computation\Nodes\UniNodes\SeriesNode.cs" />
+    <Compile Include="Core\Computation\Nodes\UniNodes\SeriesNodes\ProductSeries.cs" />
     <Compile Include="Core\Computation\Nodes\UniNodes\SeriesNodes\SumSeries.cs" />
     <Compile Include="Core\Computation\Nodes\Union.cs" />
     <Compile Include="Core\Computation\Nodes\Unions\Value.cs" />

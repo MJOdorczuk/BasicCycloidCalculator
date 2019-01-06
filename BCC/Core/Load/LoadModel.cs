@@ -5,23 +5,28 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace BCC.Core.Load
 {
+    enum Dummy { DUMMY }
+
     public abstract class PredefinedGroupContainer
     {
-        private List<DimensioningParams> parameters;
-        private List<Tuple<Func<string>, Dictionary<DimensioningParams, double>>> predefines;
+        private List<Enum> parameters;
+        private List<Tuple<Func<string>, Dictionary<Enum, double>>> predefines;
+        private readonly bool isCustomable;
 
-        public PredefinedGroupContainer(List<DimensioningParams> parameters)
+        public PredefinedGroupContainer(List<Enum> parameters, bool isCustomable)
         {
-            this.parameters = new List<DimensioningParams>(parameters);
-            this.predefines = new List<Tuple<Func<string>, Dictionary<DimensioningParams, double>>>();
+            this.parameters = new List<Enum>(parameters);
+            this.predefines = new List<Tuple<Func<string>, Dictionary<Enum, double>>>();
+            this.isCustomable = isCustomable;
         }
 
-        protected void PushPredefine(Func<string> nameCall, Dictionary<DimensioningParams, double> values)
+        protected void PushPredefine(Func<string> nameCall, Dictionary<Enum, double> values)
         {
             foreach(var param in parameters)
             {
@@ -31,34 +36,13 @@ namespace BCC.Core.Load
             {
                 if (!parameters.Contains(param)) throw new Exception("Unknonw parameter");
             }
-            predefines.Add(new Tuple<Func<string>, Dictionary<DimensioningParams, double>>(nameCall, values));
+            predefines.Add(new Tuple<Func<string>, Dictionary<Enum, double>>(nameCall, values));
         }
 
-        public List<Tuple<Func<string>, Dictionary<DimensioningParams, double>>> Predefines => 
-            new List<Tuple<Func<string>, Dictionary<DimensioningParams, double>>>(predefines);
-        public List<DimensioningParams> Parameters => new List<DimensioningParams>(parameters);
-    }
-
-    public enum DimensioningParams
-    {
-        E_MATERIAL,
-        Ν_MATERIAL,
-        R_SPACING,
-        ΔR_HOLE_SPACING,
-        ΔΦ_HOLE,
-        ΔR_SLEEVE_SPACING,
-        ΔΦ_SLEEVE,
-        ΔE,
-        ΔR_SLEEVE,
-        ΔR_HOLE,
-        B,
-        R_SLEEVE,
-        R_HOLE,
-        E,
-        N,
-        GEAR_MATERIAL,
-        SLEEVE_MATERIAL,
-        Δ
+        public List<Tuple<Func<string>, Dictionary<Enum, double>>> Predefines => 
+            new List<Tuple<Func<string>, Dictionary<Enum, double>>>(predefines);
+        public List<Enum> Parameters => new List<Enum>(parameters);
+        public bool IsCustomable => isCustomable;
     }
 
     abstract class LoadModel : Model
@@ -84,8 +68,8 @@ namespace BCC.Core.Load
             if(dimensioningPart is null)
             {
                 var parameterControls = new List<Control>();
-                var getterCalls = new Dictionary<DimensioningParams, Func<double, double>>();
-                var setterCalls = new Dictionary<DimensioningParams, Action<double, double>>();
+                var getterCalls = new Dictionary<Enum, Func<int, double>>();
+                var setterCalls = new Dictionary<Enum, Action<int, double>>();
                 var paramBoxWidth = StaticFields.PARAM_BOX_WIDTH;
                 var paramBoxHeight = StaticFields.PARAM_BOX_HEIGHT;
                 var margin = StaticFields.MARGIN;
@@ -94,7 +78,7 @@ namespace BCC.Core.Load
 
                 new Action(() =>
                 {
-                    var i = 0;
+                    var tabIndex = 0;
 
                     // MaterialGroupBoxes
                     new Action(() =>
@@ -106,7 +90,7 @@ namespace BCC.Core.Load
                                 Font = new Font("Microsoft Sans Serif", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 238),
                                 Location = new Point(3, 3),
                                 Size = new Size(paramBoxWidth * 2 + 20, paramBoxHeight * 2 + 20),
-                                TabIndex = i++,
+                                TabIndex = tabIndex++,
                                 TabStop = false
                             };
                             Vocabulary.AddNameCall(() =>
@@ -119,6 +103,7 @@ namespace BCC.Core.Load
                                 Size = new Size(paramBoxWidth * 2 + 20 - 2 * margin, 58),
                             };
 
+                            var predefines = pair.Value.Predefines;
                             var ComboBox = new ComboBox()
                             {
                                 FormattingEnabled = true,
@@ -130,16 +115,17 @@ namespace BCC.Core.Load
                             {
                                 var index = ComboBox.SelectedIndex;
                                 ComboBox.Items.Clear();
-                                ComboBox.Items.Add(Vocabulary.ParameterLabels.Dimensioning.Custom());
-                                ComboBox.SelectedIndex = index >= 0 ? index : 0;
-                                foreach (var param in pair.Value.Predefines)
+                                if(pair.Value.IsCustomable) ComboBox.Items.Add(Vocabulary.ParameterLabels.Dimensioning.Custom());
+                                foreach (var param in predefines)
                                 {
                                     ComboBox.Items.Add(param.Item1());
                                 }
+                                ComboBox.SelectedIndex = index >= 0 ? index : 0;
                             });
                             GroupBox.Controls.Add(ComboBox);
                             GroupBox.Controls.Add(FlowPanel);
 
+                            var subInputs = new Dictionary<Enum, NumericUpDown>();
                             foreach (var param in pair.Value.Parameters)
                             {
                                 var j = 0;
@@ -167,16 +153,62 @@ namespace BCC.Core.Load
                                 };
                                 SubGroupBox.Controls.Add(UpDown);
                                 FlowPanel.Controls.Add(SubGroupBox);
+                                subInputs.Add(param, UpDown);
                             }
                             
                             parameterControls.Add(GroupBox);
+
+                            ComboBox.SelectedIndexChanged += (sender, e) =>
+                            {
+                                var index = ComboBox.SelectedIndex;
+                               
+                                if(index == 0)
+                                {
+                                    foreach(var subInput in subInputs)
+                                    {
+                                        subInput.Value.Enabled = true;
+                                    }
+                                }
+                                else
+                                {
+                                    var values = predefines[index - 1].Item2;
+                                    foreach (var subInput in subInputs)
+                                    {
+                                        subInput.Value.Value = (decimal)values[subInput.Key];
+                                        subInput.Value.Enabled = false;
+                                    }
+                                }
+                            };
+                            getterCalls.Add(pair.Key, i =>
+                            {
+                                if(subInputs.Count == 0)
+                                {
+                                    if (i == 0) return ComboBox.SelectedIndex;
+                                    else return Model.NULL;
+                                }
+                                var called = subInputs.ToList().Find(p => Convert.ToInt32(p.Key) == i);
+                                if (called.Equals(default(KeyValuePair<Enum, NumericUpDown>))) return Model.NULL;
+                                else return (double)called.Value.Value;
+                            });
+                            setterCalls.Add(pair.Key, (i, value) =>
+                            {
+                                if (subInputs.Count == 0) return;
+                                var called = subInputs.ToList().Find(p => Convert.ToInt32(p.Key) == i);
+                                if (!called.Equals(default(KeyValuePair<Enum, NumericUpDown>)))
+                                {
+                                    if(called.Value.Enabled)
+                                    {
+                                        called.Value.Value = (decimal)value;
+                                    }
+                                }
+                            });
                         }
                     })();
 
                     // GearParametersGroupBoxes
                     new Action(() =>
                     {
-                        int j = 0;
+                        int subTabIndex = 0;
                         // 
                         // GearParametersGroupBox
                         // 
@@ -185,7 +217,7 @@ namespace BCC.Core.Load
                             Font = new Font("Microsoft Sans Serif", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 238),
                             Location = new Point(3, 3),
                             Size = new Size(370, 134),
-                            TabIndex = i++,
+                            TabIndex = tabIndex++,
                             TabStop = false
                         };
                         var GearParametersFlowPanel = new FlowLayoutPanel
@@ -203,7 +235,7 @@ namespace BCC.Core.Load
                             {
                                 Location = new Point(3, 3),
                                 Size = new Size(175, 49),
-                                TabIndex = j++,
+                                TabIndex = subTabIndex++,
                                 TabStop = false
                             };
                             Vocabulary.AddNameCall(() => GroupBox.Text = nameCallGenerators[param]());
@@ -212,7 +244,7 @@ namespace BCC.Core.Load
                                 DecimalPlaces = 0,
                                 Increment = 1,
                                 Location = new Point(7, 22),
-                                Maximum = 1000,
+                                Maximum = 100,
                                 Minimum = 1,
                                 Size = new Size(120, 22),
                                 TabIndex = 0,
@@ -220,6 +252,15 @@ namespace BCC.Core.Load
                             };
                             GroupBox.Controls.Add(UpDown);
                             GearParametersFlowPanel.Controls.Add(GroupBox);
+                            getterCalls.Add(param, i =>
+                            {
+                                if (i == 0) return (double)UpDown.Value;
+                                else return Model.NULL;
+                            });
+                            setterCalls.Add(param, (i, value) =>
+                            {
+                                if (i == 0) UpDown.Value = (decimal)value;
+                            });
                         }
                         // Obligatory floating-point parameters
                         foreach(var param in ObligatoryFloatParams())
@@ -228,7 +269,7 @@ namespace BCC.Core.Load
                             {
                                 Location = new Point(3, 3),
                                 Size = new Size(175, 49),
-                                TabIndex = j++,
+                                TabIndex = subTabIndex++,
                                 TabStop = false
                             };
                             Vocabulary.AddNameCall(() => GroupBox.Text = nameCallGenerators[param]());
@@ -245,6 +286,15 @@ namespace BCC.Core.Load
                             };
                             GroupBox.Controls.Add(UpDown);
                             GearParametersFlowPanel.Controls.Add(GroupBox);
+                            getterCalls.Add(param, i =>
+                            {
+                                if (i == 0) return (double)UpDown.Value;
+                                else return Model.NULL;
+                            });
+                            setterCalls.Add(param, (i, value) =>
+                            {
+                                if (i == 0) UpDown.Value = (decimal)value;
+                            });
                         }
                         parameterControls.Add(GearParametersGroupBox);
                     })();
@@ -252,19 +302,46 @@ namespace BCC.Core.Load
                     // TolerancesGroupBox
                     new Action(() =>
                     {
+                        
+                        Enum enumSelected = Dummy.DUMMY;
+                        Mutex mu = new Mutex();
+                        Enum EnumSelected()
+                        {
+                            mu.WaitOne();
+                            var ret = enumSelected;
+                            mu.ReleaseMutex();
+                            return ret;
+                        }
+                        void SelectEnum(Enum e)
+                        {
+                            mu.WaitOne();
+                            enumSelected = e;
+                            mu.ReleaseMutex();
+                        }
+
+
+                        // Memory set for fit fields
+                        var polyFits = new Dictionary<Enum, Tuple<double, double>[]>();
+                        var singleFits = new Dictionary<Enum, Tuple<double, double>>();
+
+                        // List for int->enum casting
+                        var enumsIndexers = new List<Enum>();
+
+                        // GroupBox for whole tolerances micrmenu
                         var GroupBox = new GroupBox()
                         {
                             Font = new Font("Microsoft Sans Serif", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 238),
                             Location = new Point(3, 3),
                             Size = new Size(367, 213),
-                            TabIndex = i++,
+                            TabIndex = tabIndex++,
                             TabStop = false,
                         };
                         Vocabulary.AddNameCall(() =>
                         {
                             GroupBox.Text = Vocabulary.ParameterLabels.Dimensioning.EngineeringTolerances();
                         });
-
+                        
+                        // ListBox for fit type choosing
                         var ListBox = new ListBox
                         {
                             FormattingEnabled = true,
@@ -277,24 +354,30 @@ namespace BCC.Core.Load
                         {
                             var index = ListBox.SelectedIndex;
                             ListBox.Items.Clear();
-                            foreach (var param in FitParams())
+                            foreach (var param in PluralFitParams())
+                            {
+                                ListBox.Items.Add(nameCallGenerators[param]());
+                            }
+                            foreach(var param in SingularFitParams())
                             {
                                 ListBox.Items.Add(nameCallGenerators[param]());
                             }
                             ListBox.SelectedIndex = index < 0 ? 0 : index;
                         });
-
+                        
+                        // NumericUpDown for changing the index of the tolerated element
                         var IndexUpDown = new NumericUpDown
                         {
                             Location = new Point(255, 143),
-                            Maximum = 1,
-                            Minimum = 1,
+                            Maximum = 0,
+                            Minimum = 0,
                             RightToLeft = RightToLeft.Yes,
                             Size = new Size(54, 22),
                             TabIndex = 10,
                             UpDownAlign = LeftRightAlignment.Left,
-                            Value = 1
+                            Value = 0
                         };
+                        // NumericUpDowns for tolerating choosen element
                         var LowerUpDown = new NumericUpDown
                         {
                             DecimalPlaces = StaticFields.TOLERANCE_PRECISION,
@@ -316,6 +399,66 @@ namespace BCC.Core.Load
                             Minimum = -10,
                             Maximum = 10,
                             Increment = (decimal)Math.Pow(10, 1 - StaticFields.TOLERANCE_PRECISION),
+                        };
+                        // Variables preventing redundant usages of ValueChangedHandlers
+                        bool skipup = false, skipdown = false;
+
+                        // EventHandlers
+                        IndexUpDown.ValueChanged += (sender, e) =>
+                        {
+                            var param = EnumSelected();
+                            skipup = skipdown = true;
+                            if (polyFits.ContainsKey(param))
+                            {
+                                UpperUpDown.Value = (decimal)polyFits[param][(int)IndexUpDown.Value].Item1;
+                                LowerUpDown.Value = (decimal)polyFits[param][(int)IndexUpDown.Value].Item2;
+                            }
+                            else
+                            {
+                                UpperUpDown.Value = (decimal)singleFits[param].Item1;
+                                LowerUpDown.Value = (decimal)singleFits[param].Item2;
+                            }
+                        };
+                        var UDValueChanged = new EventHandler((sender, e) =>
+                        {
+                            var param = EnumSelected();
+                            if (polyFits.ContainsKey(param))
+                            {
+                                polyFits[param][(int)IndexUpDown.Value] =
+                                new Tuple<double, double>((double)UpperUpDown.Value,(double)LowerUpDown.Value);
+                            }
+                            else
+                            {
+                                singleFits[param] = new Tuple<double, double>((double)UpperUpDown.Value, (double)LowerUpDown.Value);
+                            }
+                        });
+                        UpperUpDown.ValueChanged += (sender, e) =>
+                        {
+                            if (skipup) skipup = false;
+                            else UDValueChanged(sender, e);
+                        };
+                        UpperUpDown.GotFocus += (sender, e) => skipup = false;
+                        LowerUpDown.ValueChanged += (sender, e) =>
+                        {
+                            if (skipdown) skipdown = false;
+                            else UDValueChanged(sender, e);
+                        };
+                        LowerUpDown.GotFocus += (sender, e) => skipdown = false;
+                        ListBox.SelectedIndexChanged += (sender, e) =>
+                        {
+                            var param = enumsIndexers[ListBox.SelectedIndex];
+                            SelectEnum(param);
+                            skipup = skipdown = true;
+                            if (polyFits.ContainsKey(param))
+                            {
+                                UpperUpDown.Value = (decimal)polyFits[param][(int)IndexUpDown.Value].Item1;
+                                LowerUpDown.Value = (decimal)polyFits[param][(int)IndexUpDown.Value].Item2;
+                            }
+                            else
+                            {
+                                UpperUpDown.Value = (decimal)singleFits[param].Item1;
+                                LowerUpDown.Value = (decimal)singleFits[param].Item2;
+                            }
                         };
 
                         var UpperDeviationLabel = new Button
@@ -343,6 +486,52 @@ namespace BCC.Core.Load
                             UseVisualStyleBackColor = true
                         };
 
+                        void SetIndexUpDownMaximum(object value)
+                        {
+                            if(dimensioningPart.InvokeRequired)
+                            {
+                                SetValueCallBack d = new SetValueCallBack(SetIndexUpDownMaximum);
+                                dimensioningPart.Invoke(d, new object[] { value });
+                            }
+                            else
+                            {
+                                int maximum = (int)value;
+                                if (IndexUpDown.Value > maximum) IndexUpDown.Value = maximum;
+                                IndexUpDown.Maximum = maximum;
+                            }
+                        }
+
+                        var indexUpdater = new Thread(() =>
+                        {
+                            int n = 0;
+                            Enum param = Dummy.DUMMY;
+                            while (ListBox.Items.Count == 0) Thread.Sleep(100);
+                            while(true)
+                            {
+                                var tempParam = EnumSelected();
+                                var temp = ToleratedElementsQuantity();
+                                if(temp != n || tempParam != param)
+                                {
+                                    if (polyFits.ContainsKey(tempParam))
+                                    {
+                                        SetIndexUpDownMaximum(temp);
+                                    }
+                                    else
+                                    {
+                                        SetIndexUpDownMaximum(0);
+                                    }
+                                    n = temp;
+                                    param = tempParam;
+                                }
+                                Thread.Sleep(100);
+                            }
+                        });
+                        
+                        GroupBox.Disposed += (sender, e) =>
+                        {
+                            indexUpdater.Abort();
+                        };
+
                         GroupBox.Controls.AddRange(new Control[]{
                             ListBox,
                             IndexUpDown,
@@ -352,6 +541,37 @@ namespace BCC.Core.Load
                             UpperDeviationLabel,
                         });
                         parameterControls.Add(GroupBox);
+
+                        foreach (var param in PluralFitParams())
+                        {
+                            var array = new Tuple<double, double>[100];
+                            for(int i = 0; i < 100; i++)
+                            {
+                                array[i] = new Tuple<double, double>(0.0,0.0);
+                            }
+                            polyFits.Add(param, array);
+                            getterCalls.Add(param, i =>
+                            {
+                                if (i < (int)IndexUpDown.Value)
+                                {
+                                    return polyFits[param][i].Item1 - polyFits[param][i].Item2;
+                                }
+                                else return Model.NULL;
+                            });
+                            enumsIndexers.Add(param);
+                        }
+                        foreach(var param in SingularFitParams())
+                        {
+                            singleFits.Add(param, new Tuple<double, double>(0.0,0.0));
+                            getterCalls.Add(param, i =>
+                            {
+                                return i == 0 ? singleFits[param].Item1 - singleFits[param].Item2 : Model.NULL;
+                            });
+                            enumsIndexers.Add(param);
+                        }
+
+                        enumSelected = enumsIndexers[0];
+                        indexUpdater.Start();
                     })();
                 })();
 
@@ -369,18 +589,23 @@ namespace BCC.Core.Load
                     AutoSize = true,
                     Dock = DockStyle.Fill
                 };
+
+                parameterControls = new List<Control>();
+                getterCalls = new Dictionary<Enum, Func<int, double>>();
+                setterCalls = new Dictionary<Enum, Action<int, double>>();
+                toolTip = new ToolTip();
             }
             
-
             return new Dictionary<UserControl, Func<string>>()
             {
                 {dimensioningPart, Vocabulary.TabPagesNames.Load }
             };
-            
         }
-        protected abstract List<DimensioningParams> ObligatoryIntParams();
-        protected abstract List<DimensioningParams> ObligatoryFloatParams();
-        protected abstract Dictionary<DimensioningParams, PredefinedGroupContainer> PredefinedGroups();
-        protected abstract List<DimensioningParams> FitParams();
+        protected abstract Dictionary<Enum, PredefinedGroupContainer> PredefinedGroups();
+        protected abstract List<Enum> PluralFitParams();
+        protected abstract List<Enum> SingularFitParams();
+        protected abstract int ToleratedElementsQuantity();
+
+        private delegate void SetValueCallBack(object value);
     }
 }

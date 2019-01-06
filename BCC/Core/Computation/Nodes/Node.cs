@@ -65,5 +65,16 @@ namespace BCC.Core.Computation.Nodes
             }
             return ret + ")";
         }
+
+        public override int GetHashCode()
+        {
+            var hashCode = -1241731392;
+            hashCode = hashCode * -1521134295 + EqualityComparer<List<Node>>.Default.GetHashCode(nodesUnder);
+            hashCode = hashCode * -1521134295 + EqualityComparer<Func<List<Node>, Node>>.Default.GetHashCode(functor);
+            hashCode = hashCode * -1521134295 + EqualityComparer<List<Node>>.Default.GetHashCode(NodesUnder);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(PreSignature);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Separator);
+            return hashCode;
+        }
     }
 }

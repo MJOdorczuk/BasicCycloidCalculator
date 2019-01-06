@@ -6,6 +6,22 @@ using System.Windows.Forms;
 
 namespace BCC.Core.Geometry
 {
+    public enum CycloParams
+    {
+        Z = 0,
+        G = 1,
+        DA = 2,
+        DF = 3,
+        E = 4,
+        H = 5,
+        DG = 6,
+        Λ = 7,
+        DW = 8,
+        Ρ = 9,
+        DB = 10,
+        EPI = 11
+    }
+
     // The simple version of geometry model.
     // No equation solving
     // Only predefined methods
@@ -29,15 +45,15 @@ namespace BCC.Core.Geometry
                 {CycloParams.Λ, Vocabulary.ParameterLabels.Geometry.ToothHeightFactor },
                 {CycloParams.Ρ, Vocabulary.ParameterLabels.Geometry.RollingCircleDiameter }
             };
-            public static readonly List<CycloParams> obligatoryFloatParams = new List<CycloParams>()
+            public static readonly List<Enum> obligatoryFloatParams = new List<Enum>()
             {
                 CycloParams.G
             };
-            public static readonly List<CycloParams> obligatoryIntParams = new List<CycloParams>()
+            public static readonly List<Enum> obligatoryIntParams = new List<Enum>()
             {
                 CycloParams.Z
             };
-            public static readonly List<CycloParams> optionalParams = new List<CycloParams>()
+            public static readonly List<Enum> optionalParams = new List<Enum>()
             {
                 CycloParams.DA,
                 CycloParams.DF,
@@ -45,61 +61,61 @@ namespace BCC.Core.Geometry
                 CycloParams.E,
                 CycloParams.H
             };
-            public static readonly List<CycloParams> outputParams = new List<CycloParams>()
+            public static readonly List<Enum> outputParams = new List<Enum>()
             {
                 CycloParams.DB,
                 CycloParams.DW,
                 CycloParams.Λ,
                 CycloParams.Ρ
             };
-            public static readonly List<List<CycloParams>> possibleCliques = new List<List<CycloParams>>()
+            public static readonly List<List<Enum>> possibleCliques = new List<List<Enum>>()
             {
-                new List<CycloParams>()
+                new List<Enum>()
                 {
                     CycloParams.DA,
                     CycloParams.DF
                 },
-                new List<CycloParams>()
+                new List<Enum>()
                 {
                     CycloParams.DA,
                     CycloParams.DG
                 },
-                new List<CycloParams>()
+                new List<Enum>()
                 {
                     CycloParams.DA,
                     CycloParams.E
                 },
-                new List<CycloParams>()
+                new List<Enum>()
                 {
                     CycloParams.DA,
                     CycloParams.H
                 },
-                new List<CycloParams>()
+                new List<Enum>()
                 {
                     CycloParams.DF,
                     CycloParams.DG
                 },
-                new List<CycloParams>()
+                new List<Enum>()
                 {
                     CycloParams.DF,
                     CycloParams.E
                 },
-                new List<CycloParams>()
+                new List<Enum>()
                 {
                     CycloParams.DF,
                     CycloParams.H
                 },
-                new List<CycloParams>()
+                new List<Enum>()
                 {
                     CycloParams.DF,
                     CycloParams.E
                 },
-                new List<CycloParams>()
+                new List<Enum>()
                 {
                     CycloParams.DG,
                     CycloParams.E
                 },
-                new List<CycloParams>()
+                new List<Enum>()
                 {
                     CycloParams.DG,
                     CycloParams.H
@@ -119,7 +135,7 @@ namespace BCC.Core.Geometry
             }
         }
 
-        protected override bool IsCurvatureRequirementMet(Dictionary<CycloParams, double> vals)
+        protected override bool IsCurvatureRequirementMet(Dictionary<Enum, double> vals)
         {
             if (CycloidGeometry.CurveReq)
             {
@@ -132,7 +148,7 @@ namespace BCC.Core.Geometry
                 return false;
             }
         }
-        protected override bool IsNeighbourhoodRequirementMet(Dictionary<CycloParams, double> vals)
+        protected override bool IsNeighbourhoodRequirementMet(Dictionary<Enum, double> vals)
         {
             if (CycloidGeometry.NeighReq)
             {
@@ -145,7 +161,7 @@ namespace BCC.Core.Geometry
                 return false;
             }
         }
-        protected override bool IsToothCuttingRequirementMet(Dictionary<CycloParams, double> vals)
+        protected override bool IsToothCuttingRequirementMet(Dictionary<Enum, double> vals)
         {
             if (CycloidGeometry.CutReq)
             {
@@ -159,23 +175,23 @@ namespace BCC.Core.Geometry
             }
         }
 
-        protected override List<CycloParams> ObligatoryFloatParams()
+        protected override List<Enum> ObligatoryFloatParams()
         {
             return StaticFields.obligatoryFloatParams;
         }
-        protected override List<CycloParams> ObligatoryIntParams()
+        protected override List<Enum> ObligatoryIntParams()
         {
             return StaticFields.obligatoryIntParams;
         }
-        protected override List<CycloParams> OptionalParams()
+        protected override List<Enum> OptionalParams()
         {
             return StaticFields.optionalParams;
         }
-        protected override List<CycloParams> OutputParams()
+        protected override List<Enum> OutputParams()
         {
             return StaticFields.outputParams;
         }
-        protected override List<List<CycloParams>> PossibleCliques()
+        protected override List<List<Enum>> PossibleCliques()
         {
             return StaticFields.possibleCliques;
         }
@@ -184,7 +200,7 @@ namespace BCC.Core.Geometry
         {
             return StaticFields.nameCallGenerators;
         }
-        protected override Func<double, PointF> GetCurve(Dictionary<CycloParams, double> data)
+        protected override Func<double, PointF> GetCurve(Dictionary<Enum, double> data)
         {
             var z = (int)data[CycloParams.Z];
             var g = data[CycloParams.G];
@@ -203,7 +219,7 @@ namespace BCC.Core.Geometry
                 return new Func<double,PointF>(t => new PointF(X(t), Y(t)));
             }
         }
-        protected override Dictionary<CycloParams, double> ExtractData(Dictionary<CycloParams, double> data)
+        protected override Dictionary<Enum, double> ExtractData(Dictionary<Enum, double> data)
         {
             CycloidGeometry.Reset();
             foreach (var val in data)

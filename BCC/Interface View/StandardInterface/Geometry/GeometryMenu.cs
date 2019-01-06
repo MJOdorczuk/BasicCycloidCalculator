@@ -1,4 +1,5 @@
-﻿using BCC.Core.Geometry;
+﻿using BCC.Core;
+using BCC.Core.Geometry;
 using BCC.Miscs;
 using System;
 using System.Collections.Generic;
@@ -19,9 +20,9 @@ namespace BCC.Interface_View.StandardInterface.Geometry
             internal GeometryModel model;
             internal int PARAMBOX_WIDTH;
             internal List<Control> parameterControls;
-            internal Dictionary<CycloParams, Func<double>> getterCalls;
-            internal Dictionary<CycloParams, Action<double>> setterCalls;
-            internal Dictionary<CycloParams, Func<bool>> availabilityCalls;
+            internal Dictionary<Enum, Func<double>> getterCalls;
+            internal Dictionary<Enum, Action<double>> setterCalls;
+            internal Dictionary<Enum, Func<bool>> availabilityCalls;
         }
         public class RenderComponents
         {
@@ -49,9 +50,9 @@ namespace BCC.Interface_View.StandardInterface.Geometry
 
         private GroupBox ParametersGroupBox;
         private FlowLayoutPanel ParameterFlowLayoutPanel;
-        private readonly Dictionary<CycloParams, Func<double>> getterCalls;
-        private readonly Dictionary<CycloParams, Action<double>> setterCalls;
-        private readonly Dictionary<CycloParams, Func<bool>> availabilityCalls;
+        private readonly Dictionary<Enum, Func<double>> getterCalls;
+        private readonly Dictionary<Enum, Action<double>> setterCalls;
+        private readonly Dictionary<Enum, Func<bool>> availabilityCalls;
         private Panel DisplayPanel;
         private readonly GeometryModel model;
         private readonly RenderComponents renderComponents;
@@ -178,14 +179,14 @@ namespace BCC.Interface_View.StandardInterface.Geometry
             renderComponents.mutex.ReleaseMutex();
         }
 
-        public double Get(CycloParams param) =>
-            IsAvailable(param) ? getterCalls[param]() : GeometryModel.StaticFields.NULL;
-        public void Set(CycloParams param, double val)
+        public double Get(Enum param) =>
+            IsAvailable(param) ? getterCalls[param]() : Model.NULL;
+        public void Set(Enum param, double val)
         {
             if (setterCalls.ContainsKey(param)) setterCalls[param](val);
         }
             
-        public bool IsAvailable(CycloParams param) => 
+        public bool IsAvailable(Enum param) => 
             availabilityCalls.ContainsKey(param) ? availabilityCalls[param]() : true;
     }
 }
