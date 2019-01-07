@@ -53,14 +53,23 @@ namespace BCC.Interface_View.StandardInterface.Geometry
         private readonly Dictionary<Enum, Func<double>> getterCalls;
         private readonly Dictionary<Enum, Action<double>> setterCalls;
         private readonly Dictionary<Enum, Func<bool>> availabilityCalls;
-        private Panel DisplayPanel;
         private readonly GeometryModel model;
         private readonly RenderComponents renderComponents;
+        private readonly Panel displayPanel;
 
 
         public GeometryMenu(InitialParameters initialParameters)
         {
             this.model = initialParameters.model;
+            this.displayPanel = new Panel
+            {
+                BackColor = SystemColors.ActiveCaptionText,
+                Dock = DockStyle.Fill,
+                Location = new Point(500, 0),
+                Size = new Size(2000, 2000),
+                TabIndex = 3
+            };
+            Controls.Add(displayPanel);
             InitializeComponent();
 
             ParameterFlowLayoutPanel.Controls.AddRange
@@ -70,8 +79,10 @@ namespace BCC.Interface_View.StandardInterface.Geometry
             this.getterCalls = initialParameters.getterCalls;
             this.setterCalls = initialParameters.setterCalls;
             this.availabilityCalls = initialParameters.availabilityCalls;
+            
             renderComponents = new RenderComponents
-                (new CycloidGeometryRenderer(DisplayPanel.CreateGraphics()));
+                (new CycloidGeometryRenderer(displayPanel.CreateGraphics()));
+            
             var menu = this;
             Thread t = new Thread(() =>
             {
@@ -99,47 +110,36 @@ namespace BCC.Interface_View.StandardInterface.Geometry
 
         private void InitializeComponent()
         {
-            this.ParametersGroupBox = new System.Windows.Forms.GroupBox();
-            this.ParameterFlowLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
-            this.DisplayPanel = new System.Windows.Forms.Panel();
-            this.ParametersGroupBox.SuspendLayout();
-            this.SuspendLayout();
+            ParametersGroupBox = new GroupBox();
+            ParameterFlowLayoutPanel = new FlowLayoutPanel();
+            ParametersGroupBox.SuspendLayout();
+            SuspendLayout();
             // 
             // ParametersGroupBox
             // 
-            this.ParametersGroupBox.Controls.Add(this.ParameterFlowLayoutPanel);
-            this.ParametersGroupBox.Dock = System.Windows.Forms.DockStyle.Left;
-            this.ParametersGroupBox.Location = new System.Drawing.Point(0, 0);
-            this.ParametersGroupBox.Name = "ParametersGroupBox";
-            this.ParametersGroupBox.Size = new System.Drawing.Size(214, 954);
-            this.ParametersGroupBox.TabIndex = 0;
-            this.ParametersGroupBox.TabStop = false;
+            ParametersGroupBox.Controls.Add(ParameterFlowLayoutPanel);
+            ParametersGroupBox.Dock = DockStyle.Left;
+            ParametersGroupBox.Location = new Point(0, 0);
+            ParametersGroupBox.Name = "ParametersGroupBox";
+            ParametersGroupBox.Size = new Size(214, 954);
+            ParametersGroupBox.TabIndex = 0;
+            ParametersGroupBox.TabStop = false;
             // 
             // ParameterFlowLayoutPanel
             // 
-            this.ParameterFlowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ParameterFlowLayoutPanel.Location = new System.Drawing.Point(3, 16);
-            this.ParameterFlowLayoutPanel.Name = "ParameterFlowLayoutPanel";
-            this.ParameterFlowLayoutPanel.Size = new System.Drawing.Size(208, 935);
-            this.ParameterFlowLayoutPanel.TabIndex = 2;
-            // 
-            // DisplayPanel
-            // 
-            this.DisplayPanel.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.DisplayPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.DisplayPanel.Location = new System.Drawing.Point(214, 0);
-            this.DisplayPanel.Name = "DisplayPanel";
-            this.DisplayPanel.Size = new System.Drawing.Size(2286, 954);
-            this.DisplayPanel.TabIndex = 1;
+            ParameterFlowLayoutPanel.Dock = DockStyle.Fill;
+            ParameterFlowLayoutPanel.Location = new Point(3, 16);
+            ParameterFlowLayoutPanel.Name = "ParameterFlowLayoutPanel";
+            ParameterFlowLayoutPanel.Size = new Size(208, 935);
+            ParameterFlowLayoutPanel.TabIndex = 2;
             // 
             // GeometryMenu
             // 
-            this.Controls.Add(this.DisplayPanel);
-            this.Controls.Add(this.ParametersGroupBox);
-            this.Name = "GeometryMenu";
-            this.Size = new System.Drawing.Size(2500, 954);
-            this.ParametersGroupBox.ResumeLayout(false);
-            this.ResumeLayout(false);
+            Controls.Add(this.ParametersGroupBox);
+            Name = "GeometryMenu";
+            Size = new Size(2500, 954);
+            ParametersGroupBox.ResumeLayout(false);
+            ResumeLayout(false);
 
         }
 
@@ -167,12 +167,12 @@ namespace BCC.Interface_View.StandardInterface.Geometry
             {
                 if (!(renderComponents.curve is null))
                     renderComponents.renderer.AddCentralCurve
-                        (renderComponents.curve, DisplayPanel.Width, DisplayPanel.Height);
+                        (renderComponents.curve, displayPanel.Width, displayPanel.Height);
             }
             else
             {
                 renderComponents.renderer.AddCentralCurve
-                    (curve, DisplayPanel.Width, DisplayPanel.Height);
+                    (curve, displayPanel.Width, displayPanel.Height);
                 renderComponents.curve = curve;
             }
             renderComponents.graphicsRendered = false;

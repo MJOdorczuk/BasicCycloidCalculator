@@ -8,8 +8,8 @@ namespace BCC.Core.Geometry
 {
     static class CycloidGeometry
     {
-        public static double TRUE = GeometryModel.StaticFields.TRUE;
-        public static double FALSE = GeometryModel.StaticFields.FALSE;
+        public static double TRUE = Model.TRUE;
+        public static double FALSE = Model.FALSE;
 
         // z and g are necessary
         // two other variables necessary can be pairs of
@@ -199,7 +199,6 @@ namespace BCC.Core.Geometry
         public static Dictionary<Enum, double> GetAll()
         {
             var ret = new Dictionary<Enum, double>();
-            var enumValues = Enum.GetValues(typeof(Enum));
             foreach (Enum param in Enum.GetValues(typeof(CycloParams)))
             {
                 var val = Get(param);

@@ -47,14 +47,26 @@ namespace BCC.Miscs
                 }
                 return NOT_IMPLEMENTED_MESSAGE;
             }
-            public static string Load()
+            public static string Dimensioning()
             {
                 switch (language)
                 {
                     case Language.POLISH:
-                        return "Obciążenie";
+                        return "Wymiarowanie";
                     case Language.ENGLISH:
-                        return "Load";
+                        return "Dimensioning";
+                }
+                return NOT_IMPLEMENTED_MESSAGE;
+            }
+
+            internal static string Results()
+            {
+                switch (language)
+                {
+                    case Language.POLISH:
+                        return "Wyniki";
+                    case Language.ENGLISH:
+                        return "Results";
                 }
                 return NOT_IMPLEMENTED_MESSAGE;
             }
@@ -444,6 +456,56 @@ namespace BCC.Miscs
                             return "Kąt Rozmieszczenia Tulei";
                         case Language.ENGLISH:
                             return "Sleeve Spacing Angle";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+            }
+            public struct Result
+            {
+                internal static string Force()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Siła";
+                        case Language.ENGLISH:
+                            return "Force";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+
+                internal static string Momentum()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Moment";
+                        case Language.ENGLISH:
+                            return "Momentum";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+
+                internal static string Pressure()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Nacisk";
+                        case Language.ENGLISH:
+                            return "Pressure";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+
+                internal static string RollNumber()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Numer Rolki";
+                        case Language.ENGLISH:
+                            return "Roll Number";
                     }
                     return NOT_IMPLEMENTED_MESSAGE;
                 }

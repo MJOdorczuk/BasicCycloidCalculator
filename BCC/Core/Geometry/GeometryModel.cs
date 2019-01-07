@@ -21,8 +21,6 @@ namespace BCC.Core.Geometry
         public static class StaticFields
         {
             public static readonly int PARAM_BOX_WIDTH = 360;
-            public static readonly int VALUE_PRECISION = 3;
-            public static readonly double TRUE = 1.0, FALSE = 2.0;
         }
 
         // Parameters lists
@@ -74,8 +72,8 @@ namespace BCC.Core.Geometry
                         // 
                         var ProfileTypeGroupBox = new GroupBox
                         {
-                            Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold),
-                            Size = new System.Drawing.Size(ParamBoxWidth(), 61),
+                            Font = new Font("Microsoft Sans Serif", 12F, FontStyle.Bold),
+                            Size = new Size(ParamBoxWidth(), 61),
                             TabIndex = 1,
                             TabStop = false,
                             Dock = DockStyle.Top
@@ -89,10 +87,10 @@ namespace BCC.Core.Geometry
                         // 
                         var ProfileTypeComboBox = new ComboBox
                         {
-                            Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238))),
+                            Font = new Font("Microsoft Sans Serif", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 238),
                             FormattingEnabled = true,
-                            Location = new System.Drawing.Point(6, 25),
-                            Size = new System.Drawing.Size(121, 24),
+                            Location = new Point(6, 25),
+                            Size = new Size(121, 24),
                             TabIndex = 1
                         };
                         ProfileTypeComboBox.Items.AddRange(new object[] {
@@ -108,7 +106,7 @@ namespace BCC.Core.Geometry
                         Vocabulary.ParameterLabels.Geometry.Hipocycloid()});
                             ProfileTypeComboBox.SelectedIndex = index < 0 ? 0 : index;
                         }));
-                        getterCalls.Add(CycloParams.EPI, () => ProfileTypeComboBox.SelectedIndex < 1 ? StaticFields.TRUE : StaticFields.FALSE);
+                        getterCalls.Add(CycloParams.EPI, () => ProfileTypeComboBox.SelectedIndex < 1 ? TRUE : FALSE);
                         BubbleCalls.Add(CycloParams.EPI, message => 
                         {
                             if(message is null)
@@ -127,86 +125,34 @@ namespace BCC.Core.Geometry
                         ProfileTypeComboBox.SelectedIndexChanged += (sender, e) => Act();
                     })();
 
-                    // Obligatory integer parameters
-                    new Action(() => {
-                        
-                        foreach(var param in ObligatoryIntParams())
+                    // Obligatory parameters
+                    new Action(() =>
+                    {
+                        var paramList = new List<Enum>();
+                        paramList.AddRange(ObligatoryIntParams());
+                        paramList.AddRange(ObligatoryFloatParams());
+                        foreach(var param in paramList)
                         {
-                            // 
-                            // ParameterGroupBox
-                            // 
+                            bool intParam = ObligatoryIntParams().Contains(param);
                             var ParameterGroupBox = new GroupBox()
                             {
-                                Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238))),
-                                Size = new System.Drawing.Size(ParamBoxWidth(), 48),
+                                Font = new Font("Microsoft Sans Serif", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 238),
+                                Size = new Size(ParamBoxWidth(), 48),
                                 TabIndex = i++,
                                 TabStop = false,
                                 Dock = DockStyle.Top
                             };
                             Vocabulary.AddNameCall(() => ParameterGroupBox.Text = nameCallGenerators[param]());
-                            // 
-                            // ParameterUpDown
-                            // The parameter is set only by user
-                            //
                             var ParameterUpDown = new NumericUpDown()
                             {
-                                Location = new System.Drawing.Point(7, 22),
-                                Size = new System.Drawing.Size(120, 22),
-                                TabIndex = 0,
-                                Maximum = 100,
-                                Minimum = 1,
-                                Value = 1
-                            };
-                            ParameterGroupBox.Controls.Add(ParameterUpDown);
-                            parameterControls.Add(ParameterGroupBox);
-                            ParameterUpDown.ValueChanged += (sender, e) => Act();
-                            getterCalls.Add(param, () => (double)ParameterUpDown.Value);
-                            BubbleCalls.Add(param, message =>
-                            {
-                                if (message is null)
-                                {
-                                    ParameterUpDown.BackColor = SystemColors.Window;
-                                    toolTip.SetToolTip(ParameterGroupBox, "");
-                                }
-                                else
-                                {
-                                    ParameterUpDown.BackColor = Color.Red;
-                                    toolTip.SetToolTip(ParameterGroupBox, message);
-                                }
-                            });
-                        }
-                    })();
-
-                    // Obligatory floating-point parameters
-                    new Action(() => {
-                        foreach(var param in ObligatoryFloatParams())
-                        {
-                            // 
-                            // ParameterGroupBox
-                            // 
-                            var ParameterGroupBox = new GroupBox()
-                            {
-                                Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238))),
-                                Size = new System.Drawing.Size(ParamBoxWidth(), 48),
-                                TabIndex = i++,
-                                TabStop = false,
-                                Dock = DockStyle.Top
-                            };
-                            Vocabulary.AddNameCall(() => ParameterGroupBox.Text = nameCallGenerators[param]());
-                            // 
-                            // ParameterValueBox
-                            // The parameter is set only by user
-                            // 
-                            var ParameterUpDown = new NumericUpDown()
-                            {
-                                Location = new System.Drawing.Point(7, 22),
-                                Size = new System.Drawing.Size(120, 22),
+                                Location = new Point(7, 22),
+                                Size = new Size(120, 22),
                                 TabIndex = 0,
                                 Maximum = 10000,
-                                Value = (decimal)5.0,
-                                Minimum = (decimal)Math.Pow(10, -StaticFields.VALUE_PRECISION),
-                                Increment = (decimal)Math.Pow(10, 1 - StaticFields.VALUE_PRECISION),
-                                DecimalPlaces = StaticFields.VALUE_PRECISION
+                                Minimum = intParam ? 1 : (decimal)Math.Pow(10, - VALUE_PRECISION),
+                                Value = intParam ? 1 : (decimal)5.0,
+                                Increment = intParam ? 1 : (decimal)Math.Pow(10, 1 - VALUE_PRECISION),
+                                DecimalPlaces = intParam ? 0 : VALUE_PRECISION
                             };
                             ParameterGroupBox.Controls.Add(ParameterUpDown);
                             parameterControls.Add(ParameterGroupBox);
@@ -237,8 +183,8 @@ namespace BCC.Core.Geometry
                             // 
                             var ParameterGroupBox = new GroupBox
                             {
-                                Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238))),
-                                Size = new System.Drawing.Size(ParamBoxWidth(), 49),
+                                Font = new Font("Microsoft Sans Serif", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 238),
+                                Size = new Size(ParamBoxWidth(), 49),
                                 TabIndex = i++,
                                 TabStop = false,
                                 Dock = DockStyle.Top
@@ -250,14 +196,14 @@ namespace BCC.Core.Geometry
                             // 
                             var ParameterUpDown = new NumericUpDown()
                             {
-                                Location = new System.Drawing.Point(7, 22),
-                                Size = new System.Drawing.Size(120, 22),
+                                Location = new Point(7, 22),
+                                Size = new Size(120, 22),
                                 TabIndex = 0,
                                 Maximum = 10000,
-                                Value = (decimal)Math.Pow(10, 1 - StaticFields.VALUE_PRECISION),
-                                Minimum = (decimal)Math.Pow(10, -StaticFields.VALUE_PRECISION),
-                                Increment = (decimal)Math.Pow(10, 1 - StaticFields.VALUE_PRECISION),
-                                DecimalPlaces = StaticFields.VALUE_PRECISION,
+                                Value = (decimal)Math.Pow(10, 1 - VALUE_PRECISION),
+                                Minimum = (decimal)Math.Pow(10, - VALUE_PRECISION),
+                                Increment = (decimal)Math.Pow(10, 1 - VALUE_PRECISION),
+                                DecimalPlaces = VALUE_PRECISION,
                                 Enabled = false
                             };
                             ParameterGroupBox.Controls.Add(ParameterUpDown);
@@ -284,8 +230,8 @@ namespace BCC.Core.Geometry
                             var ParameterCheckBox = new CheckBox
                             {
                                 AutoSize = true,
-                                Location = new System.Drawing.Point(167, 22),
-                                Size = new System.Drawing.Size(15, 14),
+                                Location = new Point(167, 22),
+                                Size = new Size(15, 14),
                                 TabIndex = 1,
                                 UseVisualStyleBackColor = true
                             };
@@ -315,8 +261,8 @@ namespace BCC.Core.Geometry
                             TabIndex = i++,
                             CellBorderStyle = TableLayoutPanelCellBorderStyle.Single
                         };
-                        OutputTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-                        OutputTableLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                        OutputTableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+                        OutputTableLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
                         OutputTableLayout.RowStyles.Clear();
                         int currentRow = 0;
                         foreach (var param in OutputParams())
@@ -324,8 +270,8 @@ namespace BCC.Core.Geometry
                             var ParameterNameLabel = new Label()
                             {
                                 AutoSize = true,
-                                Location = new System.Drawing.Point(3, 3),
-                                Size = new System.Drawing.Size(50, 15),
+                                Location = new Point(3, 3),
+                                Size = new Size(50, 15),
                                 TabIndex = OutputTableLayout.RowCount * 2
                             };
                             Vocabulary.AddNameCall(() => ParameterNameLabel.Text = nameCallGenerators[param]());
@@ -333,12 +279,12 @@ namespace BCC.Core.Geometry
                             var ParameterValueLabel = new Label()
                             {
                                 AutoSize = true,
-                                Location = new System.Drawing.Point(3, 3),
-                                Size = new System.Drawing.Size(50, 15),
+                                Location = new Point(3, 3),
+                                Size = new Size(50, 15),
                                 TabIndex = OutputTableLayout.RowCount * 2 + 1
                             };
                             setterCalls.Add(param, v => ParameterValueLabel.Text = "" + v);
-                            OutputTableLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+                            OutputTableLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
                             OutputTableLayout.Controls.Add(ParameterNameLabel, 0, currentRow);
                             OutputTableLayout.Controls.Add(ParameterValueLabel, 1, currentRow++);
                             BubbleCalls.Add(param, message =>
@@ -355,7 +301,7 @@ namespace BCC.Core.Geometry
                                 }
                             });
                         }
-                        OutputTableLayout.Size = new System.Drawing.Size(ParamBoxWidth(), OutputTableLayout.RowCount * 30);
+                        OutputTableLayout.Size = new Size(ParamBoxWidth(), OutputTableLayout.RowCount * 30);
                         parameterControls.Add(OutputTableLayout);
                     })();
                 })();

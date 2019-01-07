@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace BCC.Interface_View.StandardInterface.Tension
+namespace BCC.Interface_View.StandardInterface.Dimensioning
 {
     class LoadMenu : UserControl
     {

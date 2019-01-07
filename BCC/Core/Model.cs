@@ -8,7 +8,10 @@ namespace BCC.Core
 {
     abstract class Model
     {
-        public static readonly double NULL = double.NegativeInfinity;
+        public static readonly double NULL = double.NegativeInfinity, TRUE = 1.0, FALSE = 2.0;
+        public static readonly int VALUE_PRECISION = 3;
+        public static readonly int TOLERANCE_PRECISION = 5;
+        protected delegate void SetValueCallBack(object value);
 
         protected readonly Dictionary<Enum, Action<string>> BubbleCalls = new Dictionary<Enum, Action<string>>();
         protected abstract List<Enum> ObligatoryIntParams();

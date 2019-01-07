@@ -64,6 +64,15 @@ namespace BCC.Core.Load
         Δ = 17
     }
 
+    public enum ResultParams
+    {
+        R_HOLE_SPACING = 0,
+        M = 1,
+        I = 2,
+        F = 3,
+        P = 4
+    }
+
     class SimpleLoadModel : LoadModel
     {
         protected override List<Enum> PluralFitParams()
@@ -101,6 +110,11 @@ namespace BCC.Core.Load
                 {DimensioningParams.GEAR_MATERIAL, Vocabulary.ParameterLabels.Dimensioning.GearMaterial },
                 {DimensioningParams.SLEEVE_MATERIAL, Vocabulary.ParameterLabels.Dimensioning.SleeveMaterial },
                 {DimensioningParams.Δ, Vocabulary.ParameterLabels.Dimensioning.EngineeringTolerances },
+                {ResultParams.R_HOLE_SPACING, Vocabulary.ParameterLabels.Dimensioning.HoleSpacingRadius },
+                {ResultParams.M, Vocabulary.ParameterLabels.Result.Momentum },
+                {ResultParams.F, Vocabulary.ParameterLabels.Result.Force },
+                {ResultParams.I, Vocabulary.ParameterLabels.Result.RollNumber },
+                {ResultParams.P, Vocabulary.ParameterLabels.Result.Pressure }
             };
         }
 
@@ -142,6 +156,25 @@ namespace BCC.Core.Load
             return new List<Enum>()
             {
                 DimensioningParams.ΔE
+            };
+        }
+
+        protected override List<Enum> ObligatoryResultFloatParams()
+        {
+            return new List<Enum>()
+            {
+                ResultParams.R_HOLE_SPACING,
+                ResultParams.M
+            };
+        }
+
+        protected override List<Enum> ResultDataColumns()
+        {
+            return new List<Enum>()
+            {
+                ResultParams.I,
+                ResultParams.F,
+                ResultParams.P
             };
         }
     }
