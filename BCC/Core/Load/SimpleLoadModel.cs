@@ -1,4 +1,5 @@
-﻿using BCC.Miscs;
+﻿using BCC.Core.Parameters;
+using BCC.Miscs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -75,6 +76,13 @@ namespace BCC.Core.Load
 
     class SimpleLoadModel : LoadModel
     {
+
+        private List<IParameter> parameters = null;
+
+        public SimpleLoadModel()
+        {
+        }
+
         protected override List<Enum> PluralFitParams()
         {
             return new List<Enum>()
@@ -176,6 +184,41 @@ namespace BCC.Core.Load
                 ResultParams.F,
                 ResultParams.P
             };
+        }
+
+        protected override double[] CalculatePoints()
+        {
+            return null;
+            /*var n = (int)dimensioningPart.Get(DimensioningParams.N)(0);
+            var M = resultPart.Get(ResultParams.M);
+            var Rw = resultPart.Get(ResultParams.R_HOLE_SPACING);
+            var Qmax = 4000 * M / (Rw * n);
+            var deltamax = (Qmax / (2 * Math.PI * lstyk)) * 
+                (((1 - nuk * nuk) / Ek) * (1.0 / 3.0 + Math.Log(4 * Rotw / ck)) +
+                ((1 - nut * nut) / Et) * (1.0 / 3.0 + Math.Log(4 * Rtz / ct)));// Czy tu wstawiamy 2?
+            for (int i = 0; i < n; i++)
+            {
+                var phi = 2 * Math.PI * i / n;
+                var yotj = (Rw + deltarwk[i]) * Math.Cos(phi + deltaphik[i]);
+                var yokt = (Rw + deltarwk[i]) * Math.Cos(phi + deltaphit[i]) - (e + deltae);
+                var Delta = yokt - Rtz - deltartz[i] - yotj + Rotw + deltarotw[i];
+                var delta = deltamax * Math.Sin(phi);
+                var c1 = delta - Delta;
+                var epsilon = c1 > 0 ? c1 : 0;
+                var Q = Qmax * epsilon / deltamax;
+            }*/
+        }
+
+        protected override List<IParameter> Parameters()
+        {
+            if(parameters is null)
+            {
+                parameters = new List<IParameter>()
+                {
+                    
+                };
+            }
+            return parameters;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using BCC.Miscs;
+﻿using BCC.Core.Parameters;
+using BCC.Miscs;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -27,7 +28,6 @@ namespace BCC.Core.Geometry
     // Only predefined methods
     class SimpleGeometryModel : GeometryModel
     {
-
         private static new class StaticFields
         {
             public static readonly Dictionary<Enum, Func<string>> nameCallGenerators = new Dictionary<Enum, Func<string>>()
@@ -135,6 +135,11 @@ namespace BCC.Core.Geometry
             }
         }
 
+        public SimpleGeometryModel()
+        {
+
+        }
+
         protected override bool IsCurvatureRequirementMet(Dictionary<Enum, double> vals)
         {
             if (CycloidGeometry.CurveReq)
@@ -228,6 +233,11 @@ namespace BCC.Core.Geometry
             }
             CycloidGeometry.Calculate();
             return CycloidGeometry.GetAll();
+        }
+
+        protected override List<IParameter> Parameters()
+        {
+            throw new NotImplementedException();
         }
     }
 }

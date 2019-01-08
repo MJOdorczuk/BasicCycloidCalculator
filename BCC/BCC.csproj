@@ -102,6 +102,7 @@
     <Compile Include="Core\Load\SimpleLoadModel.cs" />
     <Compile Include="Core\Initializator.cs" />
     <Compile Include="Core\Model.cs" />
+    <Compile Include="Core\Parameters\Parameter.cs" />
     <Compile Include="Interface View\MetroInterface\MyMetroForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -177,9 +178,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Core\ParameterControls\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Fody.3.3.3\build\Fody.targets" Condition="Exists('..\packages\Fody.3.3.3\build\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

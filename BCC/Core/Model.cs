@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BCC.Core.Parameters;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,5 +18,6 @@ namespace BCC.Core
         protected abstract List<Enum> ObligatoryIntParams();
         protected abstract List<Enum> ObligatoryFloatParams();
         protected abstract Dictionary<Enum, Func<string>> NameCallGenerators();
+        protected abstract List<IParameter> Parameters();
     }
 }

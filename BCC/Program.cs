@@ -7,6 +7,11 @@ using System.Linq;
 
 namespace BCC
 {
+    public class Dummy
+    {
+        public int DummyProperty { get; set; }
+    }
+
     static class Program
     {
         /// <summary>
@@ -15,8 +20,7 @@ namespace BCC
         [STAThread]
         static void Main()
         {
-            var form = Initializator.Initialize();
-            Application.Run(form);
+            Application.Run(Initializator.Initialize());
         }
     }
 }

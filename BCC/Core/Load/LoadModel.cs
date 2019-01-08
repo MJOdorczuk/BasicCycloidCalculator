@@ -638,7 +638,13 @@ namespace BCC.Core.Load
                     parameterControls = parameterControls,
                     getterCalls = getterCalls,
                     setterCalls = setterCalls
-                });
+                })
+                {
+                    Visible = true,
+                    Enabled = true,
+                    AutoSize = true,
+                    Dock = DockStyle.Fill
+                };
             }
             
             return new Dictionary<UserControl, Func<string>>()
@@ -653,6 +659,12 @@ namespace BCC.Core.Load
         protected abstract int ToleratedElementsQuantity();
         protected abstract List<Enum> ObligatoryResultFloatParams();
         protected abstract List<Enum> ResultDataColumns();
-        
+
+        private void Act()
+        {
+            resultPart.SetSeries(CalculatePoints());
+        }
+
+        protected abstract double[] CalculatePoints();
     }
 }
