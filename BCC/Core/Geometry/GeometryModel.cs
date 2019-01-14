@@ -230,7 +230,7 @@ namespace BCC.Core.Geometry
                             var ParameterCheckBox = new CheckBox
                             {
                                 AutoSize = true,
-                                Location = new Point(167, 22),
+                                Location = new Point(150, 22),
                                 Size = new Size(15, 14),
                                 TabIndex = 1,
                                 UseVisualStyleBackColor = true
@@ -379,7 +379,7 @@ namespace BCC.Core.Geometry
             return ret;
         }
         
-        public void Act()
+        protected override void Act()
         {
             var available = new List<Enum>();
             foreach(var param in OptionalParams())

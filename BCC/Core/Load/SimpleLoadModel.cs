@@ -79,10 +79,6 @@ namespace BCC.Core.Load
 
         private List<IParameter> parameters = null;
 
-        public SimpleLoadModel()
-        {
-        }
-
         protected override List<Enum> PluralFitParams()
         {
             return new List<Enum>()
@@ -188,10 +184,11 @@ namespace BCC.Core.Load
 
         protected override double[] CalculatePoints()
         {
-            return null;
             /*var n = (int)dimensioningPart.Get(DimensioningParams.N)(0);
             var M = resultPart.Get(ResultParams.M);
             var Rw = resultPart.Get(ResultParams.R_HOLE_SPACING);
+            var Rotw = dimensioningPart.Get(DimensioningParams.R_HOLE);
+            var Rtz = dimensioningPart.Get(DimensioningParams.R_SLEEVE);
             var Qmax = 4000 * M / (Rw * n);
             var deltamax = (Qmax / (2 * Math.PI * lstyk)) * 
                 (((1 - nuk * nuk) / Ek) * (1.0 / 3.0 + Math.Log(4 * Rotw / ck)) +
@@ -207,18 +204,17 @@ namespace BCC.Core.Load
                 var epsilon = c1 > 0 ? c1 : 0;
                 var Q = Qmax * epsilon / deltamax;
             }*/
+            return null;
         }
 
-        protected override List<IParameter> Parameters()
+        protected override List<PageSeed> PageSeeds()
         {
-            if(parameters is null)
-            {
-                parameters = new List<IParameter>()
-                {
-                    
-                };
-            }
-            return parameters;
+            throw new NotImplementedException();
+        }
+
+        protected override void Act()
+        {
+            throw new NotImplementedException();
         }
     }
 }

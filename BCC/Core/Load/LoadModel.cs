@@ -660,7 +660,7 @@ namespace BCC.Core.Load
         protected abstract List<Enum> ObligatoryResultFloatParams();
         protected abstract List<Enum> ResultDataColumns();
 
-        private void Act()
+        protected override void Act()
         {
             resultPart.SetSeries(CalculatePoints());
         }

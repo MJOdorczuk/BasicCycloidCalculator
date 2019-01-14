@@ -9,7 +9,6 @@ namespace BCC.Interface_View.StandardInterface
 {
     class StandardForm : Form
     {
-
         private TabControl workTabsControl;
         public TabControl WorkSpace => workTabsControl;
 
@@ -203,9 +202,10 @@ namespace BCC.Interface_View.StandardInterface
             // 
             // StandardForm
             // 
-            this.ClientSize = new Size(1264, 681);
+            this.BackColor = System.Drawing.SystemColors.Control;
+            this.ClientSize = new System.Drawing.Size(1264, 681);
             this.MaximizeBox = false;
-            this.MaximumSize = new Size(1920, 1080);
+            this.MaximumSize = new System.Drawing.Size(1920, 1080);
             this.Name = "StandardForm";
             this.ResumeLayout(false);
 

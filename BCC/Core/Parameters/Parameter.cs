@@ -6,13 +6,37 @@ using System.Threading.Tasks;
 
 namespace BCC.Core.Parameters
 {
+    /// <summary>
+    /// Interface for all parameters, parameters lists, groups and so on
+    /// </summary>
     public interface IParameter
     {
-
+        /// <summary>
+        /// Functor for calling parameter's name or label
+        /// </summary>
+        Func<string> NameCall { get; }
+        /// <summary>
+        /// Action for calling tooltip bubble
+        /// </summary>
+        /// <param name="message"> message displayed on tooltip</param>
+        void CallBubble(string message);
+        /// <summary>
+        /// Add action to execute when the tooltip bubble is called
+        /// </summary>
+        /// <param name="call"></param>
+        void AddBubbleCall(Action<string> call);
+    }
+    /// <summary>
+    /// Interface for choosable parameters with possibility of checking enability property
+    /// </summary>
+    public interface IEnableable
+    {
+        bool Enabled { get; set; }
     }
 
     public abstract class Parameter<T> : IParameter
     {
+        private Action<string> bubbleCall;
         public T LowerBound { get; set; }
         public T UpperBound { get; set; }
         private readonly Func<string> nameCall;
@@ -26,159 +50,118 @@ namespace BCC.Core.Parameters
 
         protected abstract T FitIntoBoundaries(T value);
         public Func<string> NameCall => () => nameCall();
-    }
-
-    public abstract class EnableableParameter<T> : Parameter<T>
-    {
-        public EnableableParameter(Func<string> nameCall, T lowerBound, T upperBound) : base(nameCall, lowerBound, upperBound)
+        public void AddBubbleCall(Action<string> call)
         {
+            bubbleCall += call;
         }
-
-        public bool IsEnabled { get; set; }
+        public void CallBubble(string message)
+        {
+            bubbleCall(message);
+        }
     }
 
-    public abstract class ListParameter<T> : Parameter<T>
+    /*public abstract class GroupParameter
     {
-        private List<T> values;
-
-        public ListParameter(Func<string> nameCall, T lowerBound, T upperBound, int count = 1, T value = default(T)) 
-            : base(nameCall, lowerBound, upperBound)
+        private class GroupLabel
         {
-            values = new List<T>();
-            for(int i = 0; i < count; i++)
+            private Func<string> nameCall;
+            private List<IParameter> subParameters;
+
+            public Func<string> NameCall => () => nameCall();
+            public void Add(IParameter parameter)
             {
-                values.Add(FitIntoBoundaries(value));
+                subParameters.Add(parameter);
             }
         }
 
-        public Func<int, T> Get => i => values[i];
-        public Action<int, T> Set => (i, value) =>
+        private class GroupOptionLabel
         {
-            values[i] = FitIntoBoundaries(value);
+            private Func<string> nameCall;
+            public Func<string> NameCall => () => nameCall();
+        }
+
+        private List<GroupLabel> predefines;
+        private List<Func<string>> nameCalls;
+        private int index;
+        public bool IsCustomizable { get; private set; }
+
+        public Func<string> NameCall => nameCalls[index];
+        public void AddSubParameter(Func<IParameter> parameterConstructor)
+        {
+            foreach(var predefine in predefines)
+            {
+                predefine.Add(parameterConstructor());
+            }
+        }
+    }*/
+
+    public class OutputSingleParameter : IParameter
+    {
+        private object value;
+        private Func<string> nameCall;
+        private Action<object> changeListener;
+        private Action<string> bubbleCall;
+
+        public OutputSingleParameter(Func<string> nameCall, object value)
+        {
+            this.nameCall = nameCall;
+            this.value = value;
+        }
+
+        public Action<object> Set => value =>
+        {
+            this.value = value;
+            changeListener(value);
         };
-        public int Count => values.Count;
-        public void SetCount(int count)
+        public object Get => value;
+
+        public Func<string> NameCall => () => nameCall();
+
+        public void AddBubbleCall(Action<string> call)
         {
-            if (count < 1) values.Clear();
-            else if(count > values.Count)
-            {
-                for(int i = 0; i < count - values.Count; i++)
-                {
-                    values.Add(default(T));
-                }
-            }
-            else if(count < values.Count)
-            {
-                values.RemoveRange(count, values.Count - count);
-            }
+            bubbleCall += call;
+        }
+
+        public void AddListener(Action<object> listener)
+        {
+            changeListener += listener;
+        }
+
+        public void CallBubble(string message)
+        {
+            bubbleCall(message);
         }
     }
 
-    public abstract class SingleParameter<T> : Parameter<T>
+    public class OutputParameterList : IParameter
     {
-        private T value;
-        private Action<T> valueChangedListener = value => { };
-        public SingleParameter(Func<string> nameCall, T lowerBound, T upperBound, T value = default(T)) 
-            : base(nameCall, lowerBound, upperBound)
+        private Func<string> nameCall;
+        private Action<string> bubbleCall;
+        private List<OutputSingleParameter> parameters;
+        public OutputParameterList(Func<string> nameCall, params OutputSingleParameter[] parameters)
         {
-            this.value = FitIntoBoundaries(value);
+            this.parameters = new List<OutputSingleParameter>(parameters);
+            this.nameCall = nameCall;
+        }
+        public void AddParameter(OutputSingleParameter parameter)
+        {
+            parameters.Add(parameter);
         }
 
-        public Func<T> Get => () => value;
-        public Action<T> Set => value =>
+        public void CallBubble(string message)
         {
-            this.value = FitIntoBoundaries(value);
-            valueChangedListener(value);
-        };
-
-        public void AddValueChangedListener(Action<T> listener)
-        {
-            valueChangedListener += listener;
-        }
-    }
-
-    public class IntParameter : SingleParameter<int>
-    {
-        public IntParameter(Func<string> nameCall, int lowerBound = 1, int upperBound = 100, int value = 1) 
-            : base(nameCall, lowerBound, upperBound, value)
-        {
-
+            bubbleCall(message);
         }
 
-        protected override int FitIntoBoundaries(int value)
+        public void AddBubbleCall(Action<string> call)
         {
-            if (value < LowerBound) return LowerBound;
-            if (value > UpperBound) return UpperBound;
-            else return value;
-        }
-    }
-
-    public class FloatParameter : SingleParameter<double>
-    {
-        public FloatParameter(Func<string> nameCall, double lowerBound = 0.0, double upperBound = 50000.0, double value = 0.0) 
-            : base(nameCall, lowerBound, upperBound, value)
-        {
+            bubbleCall += call;
         }
 
-        protected override double FitIntoBoundaries(double value)
-        {
-            if (value < LowerBound) return LowerBound;
-            if (value > UpperBound) return UpperBound;
-            else return value;
-        }
-    }
-
-    public class BoolParameter : SingleParameter<bool>
-    {
-        public BoolParameter(Func<string> nameCall, bool value = false) : base(nameCall, false, true, value)
-        {
-        }
-
-        protected override bool FitIntoBoundaries(bool value)
-        {
-            return value;
-        }
-    }
-
-    public class IntListParameter : ListParameter<int>
-    {
-        public IntListParameter(Func<string> nameCall, int lowerBound = 1, int upperBound = 100, int count = 1, int value = 1) 
-            : base(nameCall, lowerBound, upperBound, count, value)
-        {
-        }
-
-        protected override int FitIntoBoundaries(int value)
-        {
-            if (value < LowerBound) return LowerBound;
-            if (value > UpperBound) return UpperBound;
-            else return value;
-        }
-    }
-
-    public class FloatListParameter : ListParameter<double>
-    {
-        public FloatListParameter(Func<string> nameCall, double lowerBound = 0.0, double upperBound = 50000.0, int count = 1, double value = 0.0) 
-            : base(nameCall, lowerBound, upperBound, count, value)
-        {
-        }
-
-        protected override double FitIntoBoundaries(double value)
-        {
-            if (value < LowerBound) return LowerBound;
-            if (value > UpperBound) return UpperBound;
-            else return value;
-        }
-    }
-
-    public class BoolListParameter : ListParameter<bool>
-    {
-        public BoolListParameter(Func<string> nameCall, int count = 1, bool value = false) : base(nameCall, false, true, count, value)
-        {
-        }
-
-        protected override bool FitIntoBoundaries(bool value)
-        {
-            return value;
-        }
+        public List<OutputSingleParameter> Parameters => new List<OutputSingleParameter>(parameters);
+        /// <summary>
+        /// Functor returning list's name
+        /// </summary>
+        public Func<string> NameCall => () => nameCall();
     }
 }

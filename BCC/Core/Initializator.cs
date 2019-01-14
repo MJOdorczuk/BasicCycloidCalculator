@@ -47,6 +47,8 @@ namespace BCC.Core
             }
             DeployMenus(geometryModel.GetMenus());
             DeployMenus(loadModel.GetMenus());
+            DeployMenus(new ParametrizedGeometryModel().GetMenus());
+            DeployMenus(new ParametrizedLoadModel().GetMenus());
             Vocabulary.UpdateAllNames();
             return main;
         }

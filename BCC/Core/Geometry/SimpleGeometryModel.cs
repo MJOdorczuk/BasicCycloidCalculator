@@ -235,7 +235,7 @@ namespace BCC.Core.Geometry
             return CycloidGeometry.GetAll();
         }
 
-        protected override List<IParameter> Parameters()
+        protected override List<PageSeed> PageSeeds()
         {
             throw new NotImplementedException();
         }

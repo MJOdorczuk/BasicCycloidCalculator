@@ -4,13 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace BCC
 {
-    public class Dummy
-    {
-        public int DummyProperty { get; set; }
-    }
 
     static class Program
     {

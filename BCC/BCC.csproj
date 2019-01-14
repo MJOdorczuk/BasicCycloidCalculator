@@ -96,13 +96,18 @@
     <Compile Include="Core\Exceptions\WrongParameterValueException.cs" />
     <Compile Include="Core\Geometry\CycloidGeometry.cs" />
     <Compile Include="Core\Geometry\GeometryModel.cs" />
+    <Compile Include="Core\Geometry\ParametrizedGeometryModel.cs" />
     <Compile Include="Core\Geometry\Renderer.cs" />
     <Compile Include="Core\Geometry\SimpleGeometryModel.cs" />
     <Compile Include="Core\Load\LoadModel.cs" />
+    <Compile Include="Core\Load\ParametrizedLoadModel.cs" />
     <Compile Include="Core\Load\SimpleLoadModel.cs" />
     <Compile Include="Core\Initializator.cs" />
     <Compile Include="Core\Model.cs" />
+    <Compile Include="Core\Parameters\ListParameter.cs" />
     <Compile Include="Core\Parameters\Parameter.cs" />
+    <Compile Include="Core\Parameters\ParameterGroup.cs" />
+    <Compile Include="Core\Parameters\SingleParameter.cs" />
     <Compile Include="Interface View\MetroInterface\MyMetroForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -118,6 +123,10 @@
     <Compile Include="Interface View\StandardInterface\Dimensioning\LoadMenu.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Miscs\BubbleMessages.cs" />
+    <Compile Include="Miscs\ISOBar.cs" />
+    <Compile Include="Miscs\ParameterLabels.cs" />
+    <Compile Include="Miscs\TabPagesNames.cs" />
     <Compile Include="Miscs\Vocabulary.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
