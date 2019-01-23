@@ -294,6 +294,19 @@
                     }
                     return NOT_IMPLEMENTED_MESSAGE;
                 }
+
+                internal static string IncludeEngineeringTolerances()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Uwzględnić tolerancje";
+                        case Language.ENGLISH:
+                            return "Include engineering tolerances";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+
                 /// <summary>
                 /// Gear material
                 /// </summary>
@@ -363,9 +376,9 @@
                     switch (language)
                     {
                         case Language.POLISH:
-                            return "Szerokość Koła";
+                            return "Szerokość koła";
                         case Language.ENGLISH:
-                            return "Face Width";
+                            return "Face width";
                     }
                     return NOT_IMPLEMENTED_MESSAGE;
                 }
@@ -378,9 +391,9 @@
                     switch (language)
                     {
                         case Language.POLISH:
-                            return "Liczba Sworzni";
+                            return "Liczba sworzni";
                         case Language.ENGLISH:
-                            return "Roll Quantity";
+                            return "Roll quantity";
                     }
                     return NOT_IMPLEMENTED_MESSAGE;
                 }
@@ -393,9 +406,9 @@
                     switch (language)
                     {
                         case Language.POLISH:
-                            return "Promień Otworu";
+                            return "Promień otworu";
                         case Language.ENGLISH:
-                            return "Hole Radius";
+                            return "Hole radius";
                     }
                     return NOT_IMPLEMENTED_MESSAGE;
                 }
@@ -408,9 +421,9 @@
                     switch (language)
                     {
                         case Language.POLISH:
-                            return "Promień Tulei";
+                            return "Promień tulei";
                         case Language.ENGLISH:
-                            return "Sleeve Radius";
+                            return "Sleeve radius";
                     }
                     return NOT_IMPLEMENTED_MESSAGE;
                 }
@@ -423,9 +436,9 @@
                     switch (language)
                     {
                         case Language.POLISH:
-                            return "Promień Rozmieszczenia Sworzni";
+                            return "Promień rozmieszczenia sworzni";
                         case Language.ENGLISH:
-                            return "Roll Spacing Diameter";
+                            return "Roll spacing diameter";
                     }
                     return NOT_IMPLEMENTED_MESSAGE;
                 }
@@ -440,7 +453,7 @@
                         case Language.POLISH:
                             return "Tolerancje wykonania";
                         case Language.ENGLISH:
-                            return "Engineering Tolerances";
+                            return "Engineering tolerances";
                     }
                     return NOT_IMPLEMENTED_MESSAGE;
                 }
@@ -453,9 +466,9 @@
                     switch (language)
                     {
                         case Language.POLISH:
-                            return "Promień Rozmieszczenia Otworów";
+                            return "Promień rozmieszczenia otworów";
                         case Language.ENGLISH:
-                            return "Hole Spacing Radius";
+                            return "Hole spacing radius";
                     }
                     return NOT_IMPLEMENTED_MESSAGE;
                 }
@@ -468,9 +481,9 @@
                     switch (language)
                     {
                         case Language.POLISH:
-                            return "Promień Rozmieszczenia Tulei";
+                            return "Promień rozmieszczenia tulei";
                         case Language.ENGLISH:
-                            return "Sleeve Spacing Radius";
+                            return "Sleeve spacing radius";
                     }
                     return NOT_IMPLEMENTED_MESSAGE;
                 }
@@ -483,9 +496,9 @@
                     switch (language)
                     {
                         case Language.POLISH:
-                            return "Kąt Rozmieszczenia Otworów";
+                            return "Kąt rozmieszczenia otworów";
                         case Language.ENGLISH:
-                            return "Hole Spacing Angle";
+                            return "Hole spacing angle";
                     }
                     return NOT_IMPLEMENTED_MESSAGE;
                 }
@@ -498,9 +511,9 @@
                     switch (language)
                     {
                         case Language.POLISH:
-                            return "Kąt Rozmieszczenia Tulei";
+                            return "Kąt rozmieszczenia tulei";
                         case Language.ENGLISH:
-                            return "Sleeve Spacing Angle";
+                            return "Sleeve spacing angle";
                     }
                     return NOT_IMPLEMENTED_MESSAGE;
                 }
@@ -522,18 +535,43 @@
                     }
                     return NOT_IMPLEMENTED_MESSAGE;
                 }
+
+                internal static string CarriedForces()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Przenoszone siły";
+                        case Language.ENGLISH:
+                            return "Carried forces";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+
+                internal static string LoosenessDistributionInMechanism()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Rozkład luzów w mechanizmie";
+                        case Language.ENGLISH:
+                            return "Looseness distribution in mechanism";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+
                 /// <summary>
                 /// Momentum (M)
                 /// </summary>
                 /// <returns></returns>
-                internal static string Momentum()
+                internal static string Torque()
                 {
                     switch (language)
                     {
                         case Language.POLISH:
                             return "Moment";
                         case Language.ENGLISH:
-                            return "Momentum";
+                            return "Torque";
                     }
                     return NOT_IMPLEMENTED_MESSAGE;
                 }
@@ -541,14 +579,14 @@
                 /// Pressure (p)
                 /// </summary>
                 /// <returns></returns>
-                internal static string Pressure()
+                internal static string ContactStress()
                 {
                     switch (language)
                     {
                         case Language.POLISH:
-                            return "Nacisk";
+                            return "Nacisk stykowy";
                         case Language.ENGLISH:
-                            return "Pressure";
+                            return "Contact stress";
                     }
                     return NOT_IMPLEMENTED_MESSAGE;
                 }
@@ -561,9 +599,21 @@
                     switch (language)
                     {
                         case Language.POLISH:
-                            return "Numer Rolki";
+                            return "Numer rolki";
                         case Language.ENGLISH:
-                            return "Roll Number";
+                            return "Roll number";
+                    }
+                    return NOT_IMPLEMENTED_MESSAGE;
+                }
+
+                internal static string ContactStresses()
+                {
+                    switch (language)
+                    {
+                        case Language.POLISH:
+                            return "Naprężenia stykowe";
+                        case Language.ENGLISH:
+                            return "Contact stresses";
                     }
                     return NOT_IMPLEMENTED_MESSAGE;
                 }

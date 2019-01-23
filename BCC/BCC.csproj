@@ -12,6 +12,9 @@
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -22,13 +25,11 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationRevision>2</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
+    <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -39,6 +40,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -48,6 +50,18 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestCertificateThumbprint>F49A2E1E481D80FFA3965A8E15FA98C30751CC72</ManifestCertificateThumbprint>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestKeyFile>BCC_TemporaryKey.pfx</ManifestKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateManifests>true</GenerateManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignManifests>true</SignManifests>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Costura, Version=3.2.1.0, Culture=neutral, PublicKeyToken=9919ef960d84173d, processorArchitecture=MSIL">
@@ -67,6 +81,9 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Include="System.Xml.Linq" />
@@ -94,56 +111,34 @@
     <Compile Include="Core\Computation\Nodes\Unions\Value.cs" />
     <Compile Include="Core\Computation\Nodes\Unions\Variable.cs" />
     <Compile Include="Core\Exceptions\WrongParameterValueException.cs" />
-    <Compile Include="Core\Geometry\CycloidGeometry.cs" />
-    <Compile Include="Core\Geometry\GeometryModel.cs" />
     <Compile Include="Core\Geometry\ParametrizedGeometryModel.cs" />
-    <Compile Include="Core\Geometry\Renderer.cs" />
-    <Compile Include="Core\Geometry\SimpleGeometryModel.cs" />
-    <Compile Include="Core\Load\LoadModel.cs" />
     <Compile Include="Core\Load\ParametrizedLoadModel.cs" />
-    <Compile Include="Core\Load\SimpleLoadModel.cs" />
     <Compile Include="Core\Initializator.cs" />
     <Compile Include="Core\Model.cs" />
     <Compile Include="Core\Parameters\ListParameter.cs" />
     <Compile Include="Core\Parameters\Parameter.cs" />
     <Compile Include="Core\Parameters\ParameterGroup.cs" />
     <Compile Include="Core\Parameters\SingleParameter.cs" />
+    <Compile Include="Core\Parameters\UpDownParameterGroup.cs" />
     <Compile Include="Interface View\MetroInterface\MyMetroForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Interface View\StandardInterface\Dimensioning\ResultMenu.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Interface View\StandardInterface\Geometry\GeometryMenu.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="Interface View\StandardInterface\StandardForm.cs">
       <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Interface View\StandardInterface\Dimensioning\LoadMenu.cs">
-      <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Miscs\BubbleMessages.cs" />
     <Compile Include="Miscs\ISOBar.cs" />
     <Compile Include="Miscs\ParameterLabels.cs" />
     <Compile Include="Miscs\TabPagesNames.cs" />
+    <Compile Include="Miscs\Utilities.cs" />
     <Compile Include="Miscs\Vocabulary.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Interface View\MetroInterface\MyMetroForm.resx">
       <DependentUpon>MyMetroForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Interface View\StandardInterface\Dimensioning\ResultMenu.resx">
-      <DependentUpon>ResultMenu.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Interface View\StandardInterface\Geometry\GeometryMenu.resx">
-      <DependentUpon>GeometryMenu.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Interface View\StandardInterface\StandardForm.resx">
       <DependentUpon>StandardForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Interface View\StandardInterface\Dimensioning\LoadMenu.resx">
-      <DependentUpon>LoadMenu.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -154,6 +149,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="BCC_TemporaryKey.pfx" />
     <None Include="ClassDiagram1.cd" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -168,9 +164,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="MetroFramework.txt" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />

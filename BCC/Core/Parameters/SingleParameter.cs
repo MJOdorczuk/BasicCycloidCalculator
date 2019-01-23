@@ -29,7 +29,7 @@ namespace BCC.Core.Parameters
         public Action<T> Set => value =>
         {
             this.value = FitIntoBoundaries(value);
-            valueChangedListener(value);
+            valueChangedListener(this.value);
         };
 
         object ISingleParameter.Get => Get();
@@ -97,6 +97,7 @@ namespace BCC.Core.Parameters
         {
             if (value < LowerBound) return LowerBound;
             if (value > UpperBound) return UpperBound;
+            if (!(value >= LowerBound && value <= UpperBound)) return LowerBound;
             else return value;
         }
     }

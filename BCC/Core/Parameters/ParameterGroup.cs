@@ -64,6 +64,7 @@ namespace BCC.Core.Parameters
                     param.Key.Set(param.Value);
                     param.Key.Enabled = false;
                 }
+            this.index = index;
         }
 
         public class ParameterGroupGenerator
@@ -96,7 +97,7 @@ namespace BCC.Core.Parameters
                     }
                 }
                 predefined.Add(new Tuple<Func<string>, Dictionary<ISingleEnableableParameter, object>>(call, values));
-                return predefined.Count;
+                return predefined.Count - (customable ? 0 : 1);
             }
 
             public ParameterGroup Generate()

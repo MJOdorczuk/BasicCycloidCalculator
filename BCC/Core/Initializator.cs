@@ -1,7 +1,6 @@
 ﻿using BCC.Core.Geometry;
 using BCC.Core.Load;
 using BCC.Interface_View.StandardInterface;
-using BCC.Interface_View.StandardInterface.Geometry;
 using BCC.Miscs;
 using System;
 using System.Collections.Generic;
@@ -15,15 +14,13 @@ namespace BCC.Core
 
         private static StandardForm main;
         private static TabControl workSpace;
-        private static GeometryModel geometryModel = new SimpleGeometryModel();
-        private static LoadModel loadModel = new SimpleLoadModel();
 
         public static Form Initialize()
         {
             Initializator.main = new StandardForm()
             {
                 Width = 1280,
-                Height = 720,
+                Height = 800,
                 Visible = true,
                 AutoSize = true,
                 Enabled = true,
@@ -45,8 +42,6 @@ namespace BCC.Core
                     page.Controls.Add(pair.Key);
                 }
             }
-            DeployMenus(geometryModel.GetMenus());
-            DeployMenus(loadModel.GetMenus());
             DeployMenus(new ParametrizedGeometryModel().GetMenus());
             DeployMenus(new ParametrizedLoadModel().GetMenus());
             Vocabulary.UpdateAllNames();

@@ -3,8 +3,9 @@ using BCC.Miscs;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -12,7 +13,24 @@ namespace BCC.Core.Geometry
 {
     class ParametrizedGeometryModel : Model
     {
+        // Static fields
+        private const int PRIMES_BOUND = 50;
+        private static readonly int[] PRIMES =
+                (from i in Enumerable.Range(2, PRIMES_BOUND).AsParallel()
+                 where Enumerable.Range(2, (int)Math.Sqrt(i)).All(j => i % j != 0)
+                 select i).ToArray();
+        private const double BOUND_MARGIN = 1.2;
+        private static readonly Pen widePen = new Pen(Brushes.White)
+        {
+            Width = 2.0F,
+            LineJoin = LineJoin.Bevel
+        };
+        private const int DEFAULT_CURVE_RESOLUTION = 10000;
+
+        // Seeds to return
         private List<PageSeed> seeds = null;
+
+        // Parameters
         private readonly OutputParameterList output;
         private readonly IntParameter z;
         private readonly FloatParameter g;
@@ -21,8 +39,11 @@ namespace BCC.Core.Geometry
         private readonly ParameterGroup epi;
         private readonly IParameter[] parameters;
         private readonly ISingleEnableableParameter[][] possibleCliques;
-        private readonly ISingleEnableableParameter[] enableables;
+
+        // Auxiliary variables
         private readonly int EPICYCLOID, HIPOCYCLOID;
+        private Renderer renderer = null;
+        private Graphics graphics;
 
         public ParametrizedGeometryModel()
         {
@@ -95,11 +116,6 @@ namespace BCC.Core.Geometry
 
         private bool IsEpicycloid => epi.Get == EPICYCLOID;
 
-        public Dictionary<UserControl, Func<string>> GetMenus()
-        {
-            return NewGetMenus();
-        }
-
         protected override List<PageSeed> PageSeeds()
         {
             if(seeds is null)
@@ -111,6 +127,8 @@ namespace BCC.Core.Geometry
                 };
                 var geometrySeed = new PageSeed(Vocabulary.TabPagesNames.Geometry, parameters);
                 seeds.Add(geometrySeed);
+                renderer = new Renderer(geometrySeed.WorkSpace);
+                graphics = geometrySeed.G;
             }
             return seeds;
         }
@@ -124,25 +142,26 @@ namespace BCC.Core.Geometry
                 int z = this.z.Get();
                 double g = this.g.Get();
                 double da, df, dg, e, lambda, dw, rho, db;
+                bool isEpicycloid = IsEpicycloid;
                 if (this.da.Enabled)
                 {
                     da = this.da.Get();
                     if (this.df.Enabled)
                     {
                         df = this.df.Get();
-                        e = (da - df) / (IsEpicycloid ? 4 : -4);
-                        rho = ((da / 2) + (IsEpicycloid ? g - e : e - g)) / (z + (IsEpicycloid ? 1 : -1));
+                        e = (da - df) / (isEpicycloid? 4 : -4);
+                        rho = ((da / 2) + (isEpicycloid? g - e : e - g)) / (z + (isEpicycloid? 1 : -1));
                         lambda = e / rho;
-                        dg = 2 * rho * (z + (IsEpicycloid ? 1 : -1));
+                        dg = 2 * rho * (z + (isEpicycloid? 1 : -1));
                     }
                     else if (this.dg.Enabled)
                     {
                         dg = this.dg.Get();
-                        rho = dg / (2 * (z + (IsEpicycloid ? 1 : -1)));
-                        lambda = (IsEpicycloid ? 1 : -1) * (0.5 * da - rho * (z + (IsEpicycloid ? 1 : -1))
-                            + (IsEpicycloid ? g : -g)) / rho;
+                        rho = dg / (2 * (z + (isEpicycloid? 1 : -1)));
+                        lambda = (isEpicycloid? 1 : -1) * (0.5 * da - rho * (z + (isEpicycloid? 1 : -1))
+                            + (isEpicycloid? g : -g)) / rho;
                         e = lambda * rho;
-                        df = 2 * (rho * (z + (IsEpicycloid ? 1 : -1) - lambda) + (IsEpicycloid ? -g : g));
+                        df = 2 * (rho * (z + (isEpicycloid? 1 : -1) - lambda) + (isEpicycloid? -g : g));
                     }
                     else if (this.e.Enabled || this.h.Enabled)
                     {
@@ -154,10 +173,10 @@ namespace BCC.Core.Geometry
                         {
                             e = this.e.Get();
                         }
-                        df = da + (IsEpicycloid ? -4 : 4) * e;
-                        rho = ((da / 2) + (IsEpicycloid ? g - e : e - g)) / (z + (IsEpicycloid ? 1 : -1));
+                        df = da + (isEpicycloid? -4 : 4) * e;
+                        rho = ((da / 2) + (isEpicycloid? g - e : e - g)) / (z + (isEpicycloid? 1 : -1));
                         lambda = e / rho;
-                        dg = 2 * rho * (z + (IsEpicycloid ? 1 : -1));
+                        dg = 2 * rho * (z + (isEpicycloid? 1 : -1));
                     }
                     else
                     {
@@ -170,10 +189,10 @@ namespace BCC.Core.Geometry
                     if (this.dg.Enabled)
                     {
                         dg = this.dg.Get();
-                        rho = dg / (2 * (z + (IsEpicycloid ? 1 : -1)));
-                        lambda = (IsEpicycloid ? -1 : 1) * (0.5 * df - rho * (z + (IsEpicycloid ? 1 : -1)) + (IsEpicycloid ? g : -g)) / rho;
+                        rho = dg / (2 * (z + (isEpicycloid? 1 : -1)));
+                        lambda = (isEpicycloid? -1 : 1) * (0.5 * df - rho * (z + (isEpicycloid? 1 : -1)) + (isEpicycloid? g : -g)) / rho;
                         e = lambda * rho;
-                        da = 2 * (rho * (z + (IsEpicycloid ? 1 + lambda : -1 - lambda)) + (IsEpicycloid ? -g : g));
+                        da = 2 * (rho * (z + (isEpicycloid? 1 + lambda : -1 - lambda)) + (isEpicycloid? -g : g));
                     }
                     else if(this.e.Enabled || this.h.Enabled)
                     {
@@ -185,10 +204,10 @@ namespace BCC.Core.Geometry
                         {
                             e = this.e.Get();
                         }
-                        da = df + (IsEpicycloid ? 4 : -4) * e;
-                        rho = ((da / 2) + (IsEpicycloid ? g - e : e - g)) / (z + (IsEpicycloid ? 1 : -1));
+                        da = df + (isEpicycloid? 4 : -4) * e;
+                        rho = ((da / 2) + (isEpicycloid? g - e : e - g)) / (z + (isEpicycloid? 1 : -1));
                         lambda = e / rho;
-                        dg = 2 * rho * (z + (IsEpicycloid ? 1 : -1));
+                        dg = 2 * rho * (z + (isEpicycloid? 1 : -1));
                     }
                     else
                     {
@@ -208,10 +227,10 @@ namespace BCC.Core.Geometry
                         {
                             e = this.e.Get();
                         }
-                        rho = dg / (2 * (z + (IsEpicycloid ? 1 : -1)));
+                        rho = dg / (2 * (z + (isEpicycloid? 1 : -1)));
                         lambda = e / rho;
-                        da = 2 * (rho * (z + (IsEpicycloid ? 1 : -1) + lambda) - g);
-                        df = da + (IsEpicycloid ? -4 : 4) * e;
+                        da = 2 * (rho * (z + (isEpicycloid? 1 : -1) + lambda) - g);
+                        df = da + (isEpicycloid? -4 : 4) * e;
                     }
                     else
                     {
@@ -224,6 +243,91 @@ namespace BCC.Core.Geometry
                 }
                 db = 2 * z * rho;
                 dw = 2 * e * z;
+                // Setters
+                new Action(() => 
+                {
+                    this.da.Set(da);
+                    this.df.Set(df);
+                    this.dg.Set(dg);
+                    this.e.Set(e);
+                    h.Set(2 * e);
+                    this.lambda.Set(lambda);
+                    this.dw.Set(dw);
+                    this.rho.Set(rho);
+                    this.db.Set(db);
+                })();
+                
+                if(lambda > 1 || lambda < ((z + (isEpicycloid? -1 : 1)) / (2 * z + (isEpicycloid? 1 : -1))))
+                {
+                    this.lambda.CallBubble(Vocabulary.BubbleMessages.Geometry.CurvatureRequirementNotMet());
+                }
+                if(e < Math.Sqrt(lambda * lambda / (1 - lambda * lambda))
+                    * Math.Sqrt(1 + (isEpicycloid? 2 / z : -2 / z))
+                    * (z + (isEpicycloid? 2 : -2)) / (Math.Sqrt(27) * (z + (isEpicycloid? 1 : -1))) * g)
+                {
+                    this.e.CallBubble(Vocabulary.BubbleMessages.Geometry.ToothCutRequirementNotMet());
+                }
+                if(e <= g * lambda / ((z + (isEpicycloid? 1 : 0)) * Math.Sin(Math.PI / (z + (isEpicycloid? 1 : -1)))))
+                {
+                    this.g.CallBubble(Vocabulary.BubbleMessages.Geometry.RollNeighbourhoodRequirementNotMet());
+                }
+                new Task(() =>
+                {
+                    if (new List<double>() { g, da, df, dg, e, lambda, dw, rho, db }.All(x => x > 0) && !(renderer is null))
+                    {
+                        Func<double, PointF> curve;
+                        if(isEpicycloid)
+                        {
+                            float X(double t) => (float)(rho * ((z + 1) * Math.Cos(t) 
+                            - lambda * Math.Cos((z + 1) * t)) - g * (Math.Cos(t) 
+                            - lambda * Math.Cos((z + 1) * t)) / Math.Sqrt(1 - 2 * lambda * Math.Cos(z * t) + lambda * lambda));
+                            float Y(double t) => (float)(rho * ((z + 1) * Math.Sin(t) 
+                            - lambda * Math.Sin((z + 1) * t)) - g * (Math.Sin(t) 
+                            - lambda * Math.Sin((z + 1) * t)) / Math.Sqrt(1 - 2 * lambda * Math.Cos(z * t) + lambda * lambda));
+                            curve = new Func<double, PointF>(t => new PointF(X(t), Y(t)));
+                        }
+                        else
+                        {
+                            float X(double t) => (float)(rho * ((z - 1) * Math.Cos(t) 
+                            + lambda * Math.Cos((z - 1) * t)) + g * (Math.Cos(t) 
+                            - lambda * Math.Cos((z - 1) * t)) / Math.Sqrt(1 - 2 * lambda * Math.Cos(z * t) + lambda * lambda));
+                            float Y(double t) => (float)(rho * ((z - 1) * Math.Sin(t) 
+                            - lambda * Math.Sin((z - 1) * t)) + g * (Math.Sin(t) 
+                            + lambda * Math.Sin((z - 1) * t)) / Math.Sqrt(1 - 2 * lambda * Math.Cos(z * t) + lambda * lambda));
+                            curve =  new Func<double, PointF>(t => new PointF(X(t), Y(t)));
+                        }
+                        double distance(PointF p) => Math.Sqrt(p.X * p.X + p.Y * p.Y);
+                        var bound = (curve(0).X + 2 * e) * BOUND_MARGIN;
+                        foreach (var prime in PRIMES)
+                        {
+                            var dt = 2.0 * Math.PI / prime;
+                            for (int i = 1; i < prime; i++)
+                            {
+                                var temp = distance(curve(dt * i));
+                                if (temp > bound) bound = temp;
+                            }
+                        }
+                        renderer.SetAction(workSpace =>
+                        {
+                            var width = workSpace.Width;
+                            var height = workSpace.Height;
+                            var box = width > height ? height : width;
+                            var factor = 0.5 * box / bound;
+                            var x0 = width / 2;
+                            var y0 = height / 2;
+                            var curvePoints = new List<PointF>();
+                            for (int i = 0; i < DEFAULT_CURVE_RESOLUTION; i++)
+                            {
+                                var t = 2.0 * Math.PI * i / DEFAULT_CURVE_RESOLUTION;
+                                var x = (float)(x0 + curve(t).X * factor);
+                                var y = (float)(y0 + curve(t).Y * factor);
+                                curvePoints.Add(new PointF(x, y));
+                            }
+                            graphics.Clear(Color.Black);
+                            graphics.DrawClosedCurve(widePen, curvePoints.ToArray());
+                        });
+                    }
+                }).Start();
             }
             else
             {
@@ -245,22 +349,82 @@ namespace BCC.Core.Geometry
             
         }
 
-
-
-
-
-        // Part to remove soon
-        protected override Dictionary<Enum, Func<string>> NameCallGenerators()
+        private class Renderer
         {
-            throw new NotImplementedException();
+            private Action action = () => { };
+            private bool actionAwaiting = false;
+            private bool disposing = false;
+            private readonly object dataLock = new object();
+            private readonly Panel workSpace;
+            private const int INTERVAL = 100;
+
+            public Renderer(Panel workSpace)
+            {
+                this.workSpace = workSpace;
+                workSpace.SizeChanged += (sender, e) =>
+                {
+                    if (workSpace.Visible) this.RequestUpdate();
+                };
+                workSpace.VisibleChanged += (sender, e) => this.RequestUpdate();
+                workSpace.Paint += (sender, e) => this.RequestUpdate();
+                workSpace.Disposed += (sender, e) =>
+                {
+                    lock(dataLock)
+                    {
+                        disposing = true;
+                    }
+                };
+                new Task(() =>
+                {  while(new Func<bool>(() => 
+                    {
+                        bool disposing;
+                        lock(dataLock)
+                        {
+                            disposing = this.disposing;
+                        }
+                        return !disposing;
+                    })())
+                    {
+                        if (ActionRequested())
+                        {
+                            lock(dataLock)
+                            {
+                                action();
+                                actionAwaiting = false;
+                            }
+                        }
+                        Thread.Sleep(INTERVAL);
+                    }
+                }).Start();
+            }
+
+            public void SetAction(Action<Panel> toSet)
+            {
+                lock(dataLock)
+                {
+                    this.action = () => toSet(workSpace);
+                    this.actionAwaiting = true;
+                }
+            }
+
+            public void RequestUpdate()
+            {
+                lock(dataLock)
+                {
+                    actionAwaiting = true;
+                }
+            }
+
+            private bool ActionRequested()
+            {
+                bool ret;
+                lock(dataLock)
+                {
+                    ret = actionAwaiting;
+                }
+                return ret;
+            }
         }
-        protected override List<Enum> ObligatoryFloatParams()
-        {
-            throw new NotImplementedException();
-        }
-        protected override List<Enum> ObligatoryIntParams()
-        {
-            throw new NotImplementedException();
-        }
+
     }
 }

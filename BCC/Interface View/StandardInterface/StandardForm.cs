@@ -1,5 +1,4 @@
-﻿using BCC.Core.Geometry;
-using BCC.Miscs;
+﻿using BCC.Miscs;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -9,8 +8,7 @@ namespace BCC.Interface_View.StandardInterface
 {
     class StandardForm : Form
     {
-        private TabControl workTabsControl;
-        public TabControl WorkSpace => workTabsControl;
+        public TabControl WorkSpace { get; private set; }
 
         public StandardForm()
         {
@@ -19,7 +17,7 @@ namespace BCC.Interface_View.StandardInterface
             // WorkTabsControl
             Controls.Add(new Func<Control>(() =>
             {
-                workTabsControl = new TabControl
+                WorkSpace = new TabControl
                 {
                     Cursor = Cursors.Default,
                     Dock = DockStyle.Fill,
@@ -30,43 +28,7 @@ namespace BCC.Interface_View.StandardInterface
                     TabIndex = 2
                 };
 
-                // DummyPage
-                workTabsControl.TabPages.Add(new Func<TabPage>(() =>
-                {
-                    var DummyPage = new TabPage
-                    {
-                        Location = new Point(4, 25),
-                        Size = new Size(1256, 623),
-                        TabIndex = 0,
-                        Text = "Dummy Page",
-                        UseVisualStyleBackColor = true
-                    };
-                    var LanguageButton = new Button
-                    {
-                        Location = new Point(285, 185),
-                        Size = new Size(75, 23),
-                        TabIndex = 0,
-                        AutoSize = true,
-                        Text = "Language button",
-                        UseVisualStyleBackColor = true
-                    };
-                    LanguageButton.Click += (sender, e) =>
-                    {
-                        switch (Vocabulary.GetLanguage())
-                        {
-                            case Vocabulary.Language.POLISH:
-                                Vocabulary.SetLanguage(Vocabulary.Language.ENGLISH);
-                                break;
-                            case Vocabulary.Language.ENGLISH:
-                                Vocabulary.SetLanguage(Vocabulary.Language.POLISH);
-                                break;
-                        }
-                    };
-                    DummyPage.Controls.Add(LanguageButton);
-                    return DummyPage;
-                })());
-
-                return workTabsControl;
+                return WorkSpace;
             })());
 
             // ISOMenuBar
@@ -74,9 +36,9 @@ namespace BCC.Interface_View.StandardInterface
             {
                 var ISOMenuStrip = new MenuStrip
                 {
-                    Font = new System.Drawing.Font("Segoe UI", 12F),
-                    Location = new System.Drawing.Point(0, 0),
-                    Size = new System.Drawing.Size(1264, 29),
+                    Font = new Font("Segoe UI", 12F),
+                    Location = new Point(0, 0),
+                    Size = new Size(1264, 29),
                     TabIndex = 1
                 };
                 var ISOMenuItems = new List<ToolStripMenuItem>();
@@ -86,7 +48,7 @@ namespace BCC.Interface_View.StandardInterface
                 {
                     var FileItem = new ToolStripMenuItem
                     {
-                        Size = new System.Drawing.Size(46, 25)
+                        Size = new Size(46, 25)
                     };
                     var FileItemItems = new List<ToolStripItem>();
                     Vocabulary.AddNameCall(() => FileItem.Text = Vocabulary.ISOBar.File());
@@ -97,7 +59,7 @@ namespace BCC.Interface_View.StandardInterface
                     {
                         var NewItem = new ToolStripMenuItem
                         {
-                            Size = new System.Drawing.Size(118, 26)
+                            Size = new Size(118, 26)
                         };
                         Vocabulary.AddNameCall(() => NewItem.Text = Vocabulary.ISOBar.New());
                         FileItemItems.Add(NewItem);
@@ -108,7 +70,7 @@ namespace BCC.Interface_View.StandardInterface
                     {
                         var OpenItem = new ToolStripMenuItem
                         {
-                            Size = new System.Drawing.Size(118, 26)
+                            Size = new Size(118, 26)
                         };
                         Vocabulary.AddNameCall(() => OpenItem.Text = Vocabulary.ISOBar.Open());
                         FileItemItems.Add(OpenItem);
@@ -119,7 +81,7 @@ namespace BCC.Interface_View.StandardInterface
                     {
                         var SaveItem = new ToolStripMenuItem
                         {
-                            Size = new System.Drawing.Size(118, 26)
+                            Size = new Size(118, 26)
                         };
                         Vocabulary.AddNameCall(() => SaveItem.Text = Vocabulary.ISOBar.Save());
                         FileItemItems.Add(SaveItem);
@@ -132,7 +94,7 @@ namespace BCC.Interface_View.StandardInterface
                     {
                         var ExitItem = new ToolStripMenuItem
                         {
-                            Size = new System.Drawing.Size(118, 26)
+                            Size = new Size(118, 26)
                         };
                         Vocabulary.AddNameCall(() => ExitItem.Text = Vocabulary.ISOBar.Exit());
                         ExitItem.Click += (sender, e) => this.Close();
@@ -147,13 +109,49 @@ namespace BCC.Interface_View.StandardInterface
                 {
                     var EditItem = new ToolStripMenuItem
                     {
-                        Size = new System.Drawing.Size(46, 25)
+                        Size = new Size(46, 25)
                     };
                     var EditItemItems = new List<ToolStripItem>();
                     Vocabulary.AddNameCall(() => EditItem.Text = Vocabulary.ISOBar.Edit());
                     ISOMenuItems.Add(EditItem);
 
+                    // Language
+                    new Action(() =>
+                    {
+                        var LanguageItem = new ToolStripMenuItem
+                        {
+                            Size = new Size(118, 26)
+                        };
+                        var LanguageItemItems = new List<ToolStripItem>();
+                        Vocabulary.AddNameCall(() => LanguageItem.Text = Vocabulary.ISOBar.Language());
+                        EditItemItems.Add(LanguageItem);
 
+                        // Polish
+                        new Action(() =>
+                        {
+                            var PolishItem = new ToolStripMenuItem
+                            {
+                                Size = new Size(118, 26)
+                            };
+                            Vocabulary.AddNameCall(() => PolishItem.Text = Vocabulary.ISOBar.Polish());
+                            LanguageItemItems.Add(PolishItem);
+                            PolishItem.Click += (sender, e) => Vocabulary.SetLanguage(Vocabulary.Language.POLISH);
+                        })();
+
+                        // Engilsh
+                        new Action(() =>
+                        {
+                            var EnglishItem = new ToolStripMenuItem
+                            {
+                                Size = new Size(118, 26)
+                            };
+                            Vocabulary.AddNameCall(() => EnglishItem.Text = Vocabulary.ISOBar.English());
+                            LanguageItemItems.Add(EnglishItem);
+                            EnglishItem.Click += (sender, e) => Vocabulary.SetLanguage(Vocabulary.Language.ENGLISH);
+                        })();
+
+                        LanguageItem.DropDownItems.AddRange(LanguageItemItems.ToArray());
+                    })();
 
                     EditItem.DropDownItems.AddRange(EditItemItems.ToArray());
                 })();
@@ -163,7 +161,7 @@ namespace BCC.Interface_View.StandardInterface
                 {
                     var ViewItem = new ToolStripMenuItem
                     {
-                        Size = new System.Drawing.Size(46, 25)
+                        Size = new Size(46, 25)
                     };
                     var ViewItemItems = new List<ToolStripItem>();
                     Vocabulary.AddNameCall(() => ViewItem.Text = Vocabulary.ISOBar.View());
@@ -179,7 +177,7 @@ namespace BCC.Interface_View.StandardInterface
                 {
                     var HelpItem = new ToolStripMenuItem
                     {
-                        Size = new System.Drawing.Size(46, 25)
+                        Size = new Size(46, 25)
                     };
                     var HelpItemItems = new List<ToolStripItem>();
                     Vocabulary.AddNameCall(() => HelpItem.Text = Vocabulary.ISOBar.Help());
@@ -202,12 +200,12 @@ namespace BCC.Interface_View.StandardInterface
             // 
             // StandardForm
             // 
-            this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(1264, 681);
-            this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(1920, 1080);
-            this.Name = "StandardForm";
-            this.ResumeLayout(false);
+            BackColor = SystemColors.Control;
+            ClientSize = new Size(1264, 681);
+            MaximizeBox = false;
+            MaximumSize = new Size(1920, 1080);
+            Name = "StandardForm";
+            ResumeLayout(false);
 
         }
     }

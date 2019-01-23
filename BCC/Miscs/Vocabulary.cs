@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BCC.Miscs
 {
@@ -51,6 +48,54 @@ namespace BCC.Miscs
 
         internal static string NotImplementedYet()
         {
+            return NOT_IMPLEMENTED_MESSAGE;
+        }
+
+        internal static string Include()
+        {
+            switch (language)
+            {
+                case Language.POLISH:
+                    return "Uwzględnij";
+                case Language.ENGLISH:
+                    return "Include";
+            }
+            return NOT_IMPLEMENTED_MESSAGE;
+        }
+
+        internal static string ToleratedElementNumber()
+        {
+            switch (language)
+            {
+                case Language.POLISH:
+                    return "Numer elementu tolerowanego";
+                case Language.ENGLISH:
+                    return "Tolerated element number";
+            }
+            return NOT_IMPLEMENTED_MESSAGE;
+        }
+
+        internal static string ForUpperDeviation()
+        {
+            switch (language)
+            {
+                case Vocabulary.Language.POLISH:
+                    return "Dla górnej odychłki";
+                case Vocabulary.Language.ENGLISH:
+                    return "For upper deviation";
+            }
+            return NOT_IMPLEMENTED_MESSAGE;
+        }
+
+        internal static string ForLowerDeviation()
+        {
+            switch (language)
+            {
+                case Vocabulary.Language.POLISH:
+                    return "Dla dolnej odchyłki";
+                case Vocabulary.Language.ENGLISH:
+                    return "For lower deviation";
+            }
             return NOT_IMPLEMENTED_MESSAGE;
         }
     }

@@ -60,41 +60,6 @@ namespace BCC.Core.Parameters
         }
     }
 
-    /*public abstract class GroupParameter
-    {
-        private class GroupLabel
-        {
-            private Func<string> nameCall;
-            private List<IParameter> subParameters;
-
-            public Func<string> NameCall => () => nameCall();
-            public void Add(IParameter parameter)
-            {
-                subParameters.Add(parameter);
-            }
-        }
-
-        private class GroupOptionLabel
-        {
-            private Func<string> nameCall;
-            public Func<string> NameCall => () => nameCall();
-        }
-
-        private List<GroupLabel> predefines;
-        private List<Func<string>> nameCalls;
-        private int index;
-        public bool IsCustomizable { get; private set; }
-
-        public Func<string> NameCall => nameCalls[index];
-        public void AddSubParameter(Func<IParameter> parameterConstructor)
-        {
-            foreach(var predefine in predefines)
-            {
-                predefine.Add(parameterConstructor());
-            }
-        }
-    }*/
-
     public class OutputSingleParameter : IParameter
     {
         private object value;

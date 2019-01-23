@@ -1,4 +1,6 @@
-﻿namespace BCC.Miscs
+﻿using System;
+
+namespace BCC.Miscs
 {
     public static partial class Vocabulary
     {
@@ -12,9 +14,9 @@
             {
                 switch (language)
                 {
-                    case Language.POLISH:
+                    case Vocabulary.Language.POLISH:
                         return "Edycja";
-                    case Language.ENGLISH:
+                    case Vocabulary.Language.ENGLISH:
                         return "Edit";
                 }
                 return NOT_IMPLEMENTED_MESSAGE;
@@ -27,9 +29,9 @@
             {
                 switch (language)
                 {
-                    case Language.POLISH:
+                    case Vocabulary.Language.POLISH:
                         return "Zamknij";
-                    case Language.ENGLISH:
+                    case Vocabulary.Language.ENGLISH:
                         return "Exit";
                 }
                 return NOT_IMPLEMENTED_MESSAGE;
@@ -42,9 +44,9 @@
             {
                 switch (language)
                 {
-                    case Language.POLISH:
+                    case Vocabulary.Language.POLISH:
                         return "Plik";
-                    case Language.ENGLISH:
+                    case Vocabulary.Language.ENGLISH:
                         return "File";
                 }
                 return NOT_IMPLEMENTED_MESSAGE;
@@ -57,9 +59,9 @@
             {
                 switch (language)
                 {
-                    case Language.POLISH:
+                    case Vocabulary.Language.POLISH:
                         return "Pomoc";
-                    case Language.ENGLISH:
+                    case Vocabulary.Language.ENGLISH:
                         return "Help";
                 }
                 return NOT_IMPLEMENTED_MESSAGE;
@@ -72,9 +74,9 @@
             {
                 switch (language)
                 {
-                    case Language.POLISH:
+                    case Vocabulary.Language.POLISH:
                         return "Nowy";
-                    case Language.ENGLISH:
+                    case Vocabulary.Language.ENGLISH:
                         return "New";
                 }
                 return NOT_IMPLEMENTED_MESSAGE;
@@ -87,9 +89,9 @@
             {
                 switch (language)
                 {
-                    case Language.POLISH:
+                    case Vocabulary.Language.POLISH:
                         return "Otwórz";
-                    case Language.ENGLISH:
+                    case Vocabulary.Language.ENGLISH:
                         return "Open";
                 }
                 return NOT_IMPLEMENTED_MESSAGE;
@@ -102,9 +104,9 @@
             {
                 switch (language)
                 {
-                    case Language.POLISH:
+                    case Vocabulary.Language.POLISH:
                         return "Zapisz";
-                    case Language.ENGLISH:
+                    case Vocabulary.Language.ENGLISH:
                         return "Save";
                 }
                 return NOT_IMPLEMENTED_MESSAGE;
@@ -117,10 +119,46 @@
             {
                 switch (language)
                 {
-                    case Language.POLISH:
+                    case Vocabulary.Language.POLISH:
                         return "Widok";
-                    case Language.ENGLISH:
+                    case Vocabulary.Language.ENGLISH:
                         return "View";
+                }
+                return NOT_IMPLEMENTED_MESSAGE;
+            }
+
+            internal static string Language()
+            {
+                switch (language)
+                {
+                    case Vocabulary.Language.POLISH:
+                        return "Język";
+                    case Vocabulary.Language.ENGLISH:
+                        return "Language";
+                }
+                return NOT_IMPLEMENTED_MESSAGE;
+            }
+
+            internal static string Polish()
+            {
+                switch (language)
+                {
+                    case Vocabulary.Language.POLISH:
+                        return "Polski";
+                    case Vocabulary.Language.ENGLISH:
+                        return "Polish";
+                }
+                return NOT_IMPLEMENTED_MESSAGE;
+            }
+
+            internal static string English()
+            {
+                switch (language)
+                {
+                    case Vocabulary.Language.POLISH:
+                        return "Angielski";
+                    case Vocabulary.Language.ENGLISH:
+                        return "English";
                 }
                 return NOT_IMPLEMENTED_MESSAGE;
             }
